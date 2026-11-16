@@ -28,3 +28,9 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+## WorkPassport architecture
+- Use TanStack file routes for pages and a shared root shell; the supplied framework owns navigation and route generation.
+- Keep demo persistence and matching in the domain service adapter, separate from presentation; this enables a future API replacement without duplicating business logic.
+- Read browser persistence only after hydration and write only through explicit actions; SSR must render stable defaults and storage failures must be visible.
+- Model the initial experience as local demo state without external services; production identity and record ownership require a future backend implementation.

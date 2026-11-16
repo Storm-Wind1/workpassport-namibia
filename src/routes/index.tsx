@@ -1,23 +1,17 @@
-import { createFileRoute } from "@tanstack/react-router";
-
-// The home route ships no og:image, so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
-export const Route = createFileRoute("/")({
-  component: Index,
-});
-
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
-function Index() {
-  return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
-  );
-}
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
+import { ArrowRight, ArrowUpRight, Search, MapPin, BadgeCheck, Users, HeartHandshake, Globe2, Sparkles } from 'lucide-react';
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import workersPhoto from '@/assets/workers.jpg';
+import { useDemo } from '@/features/workpassport/context';
+import { JobCard, categoryIcons, pageHead } from '@/features/workpassport/shared';
+import { categories, locations } from '@/features/workpassport/types';
+export const Route = createFileRoute('/')({head:()=>pageHead('Your next opportunity starts here','Find employment, freelance projects and skilled workers across Namibia. Your Skills. Your Opportunities. Your Future.'),component:Home});
+function Home(){const {state}=useDemo();const navigate=useNavigate();const [q,setQ]=useState('');const [location,setLocation]=useState('');return <main>
+ <section className="hero"><img className="hero-photo" src={workersPhoto} alt="Namibian professionals and a carpenter working together in a sunny workshop" width={1536} height={1024}/><div className="container hero-content"><div className="hero-eyebrow"><Globe2 size={13}/> LOCAL TALENT. LIMITLESS POTENTIAL.</div><p className="hero-brand">WorkPassport Namibia</p><h1>Your skills.<br/>Your opportunities.<br/><em>Your future.</em></h1><p className="hero-description">Great work starts with a connection. Find your next job, grow your business, or discover the right talent — right here in Namibia.</p><form className="hero-search" onSubmit={e=>{e.preventDefault();navigate({to:'/opportunities',search:{q,location}});}}><label><Search size={18}/><input aria-label="Search jobs or skills" placeholder="Job title, skill or keyword" value={q} onChange={e=>setQ(e.target.value)}/></label><label><MapPin size={17}/><select aria-label="Choose location" value={location} onChange={e=>setLocation(e.target.value)}><option value="">Anywhere</option>{locations.map(l=><option key={l}>{l}</option>)}</select></label><Button type="submit">Find work <ArrowRight/></Button></form><div className="hero-links"><span>Looking for skilled people?</span><Link to="/talent">Hire talent <ArrowUpRight size={12} className="inline"/></Link><span>·</span><Link to="/join">Create your WorkPassport</Link></div></div><div className="hero-note"><BadgeCheck size={27}/><div><strong>Big potential. Local beginnings.</strong>Every skill deserves an opportunity.</div></div></section>
+ <section className="trust-band"><div className="container trust-inner"><div><Users size={20}/><span><strong>For every kind of worker</strong><br/>From first jobs to skilled professionals</span></div><div><MapPin size={20}/><span><strong>Namibian opportunities</strong><br/>Local work. Real possibilities.</span></div><div><HeartHandshake size={22}/><span><strong>Built on connection</strong><br/>People first. Always.</span></div></div></section>
+ <section className="section"><div className="container"><div className="section-heading"><div><span className="eyebrow">THERE’S A PLACE FOR YOUR SKILLS</span><h2>What kind of work moves you?</h2></div><Link to="/opportunities">Explore all categories <ArrowRight size={15}/></Link></div><div className="categories-grid">{categories.map((c,i)=>{const Icon=categoryIcons[i];return <Link key={c} to="/opportunities" search={{category:c}} className="category-tile"><Icon size={27}/>{c}</Link>})}</div></div></section>
+ <section className="section section-tinted"><div className="container"><div className="section-heading"><div><span className="eyebrow">YOUR NEXT CHAPTER</span><h2>Opportunities worth exploring</h2><p>A new role, a short-term gig, or a project you’ll be proud of.</p></div><Link to="/opportunities">View all opportunities <ArrowRight size={15}/></Link></div><div className="jobs-grid">{state.jobs.slice(0,3).map(job=><JobCard key={job.id} job={job}/>)}</div><p className="hint mt-5">A glimpse of what’s possible · All listings are demonstration opportunities.</p></div></section>
+ <section className="section"><div className="container"><div className="section-heading"><div><span className="eyebrow">A SIMPLE START. A BRIGHTER FUTURE.</span><h2>Make your next move</h2></div><Link to="/how-it-works">How it works <ArrowRight size={15}/></Link></div><div className="steps-grid">{[['Create your WorkPassport','Bring your skills, experience and ambitions together in one profile. You have more to offer than a CV.'],['Find your connection','Discover opportunities that fit your skills, or meet the people who can help your business grow.'],['Take the next step','Apply for work, start a conversation, or request a quote. Your next chapter starts with you.']].map(([title,text],i)=><div key={title}><span className="step-number">0{i+1}</span><h3>{title}</h3><p>{text}</p></div>)}</div></div></section>
+ <section className="cta-band"><div className="container cta-inner"><div><h2>A little courage. A world of possibility.</h2><p>Whatever your skill, wherever you’re starting — you belong here.</p></div><Button variant="secondary" size="lg" asChild><Link to="/join">Get started today <Sparkles/></Link></Button></div></section>
+ </main>}
