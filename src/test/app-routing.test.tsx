@@ -14,4 +14,14 @@ describe("App routing", () => {
 
     expect(matches.at(-1)?.routeId).not.toBe(rootRouteId);
   });
+
+  it.each([
+    ["/opportunities/carpenter", "/opportunities_/$id", "/opportunities"],
+    ["/talent/anna", "/talent_/$id", "/talent"],
+  ])("opens %s independently of the list page", (path, detailId, listId) => {
+    const router = createRouter({ routeTree, context: { queryClient: new QueryClient() } });
+    const matches = router.matchRoutes(path);
+    expect(matches.at(-1)?.routeId).toBe(detailId);
+    expect(matches.map(match => match.routeId)).not.toContain(listId);
+  });
 });

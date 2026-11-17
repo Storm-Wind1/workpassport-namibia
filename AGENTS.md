@@ -34,3 +34,5 @@ use the editor.
 - Keep demo persistence and matching in the domain service adapter, separate from presentation; this enables a future API replacement without duplicating business logic.
 - Read browser persistence only after hydration and write only through explicit actions; SSR must render stable defaults and storage failures must be visible.
 - Model the initial experience as local demo state without external services; production identity and record ownership require a future backend implementation.
+
+- Use trailing-underscore un-nested detail routes beside list content pages; list pages do not render an Outlet, so nested detail pages would be hidden.

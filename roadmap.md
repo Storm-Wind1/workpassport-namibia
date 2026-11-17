@@ -1,6 +1,7 @@
 # WorkPassport foundation
-- [ ] Design system and landing page
-- [ ] Demo onboarding and personalized dashboard
-- [ ] Searchable opportunities, posting and applications
-- [ ] Talent profiles, WorkPassport and quotations
-- [ ] Tests, responsive verification and development documentation
+- [x] Design system and landing page
+- [x] Demo onboarding and personalized dashboard
+- [x] Searchable opportunities, posting and applications
+- [x] Talent profiles, WorkPassport and quotations
+- [x] Tests, responsive verification and development documentation
+- [x] Fix posting form syntax and verify saved opportunity flow
