@@ -10,33 +10,154 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as HowItWorksRouteImport } from './routes/how-it-works'
+import { Route as JoinRouteImport } from './routes/join'
+import { Route as OpportunitiesRouteImport } from './routes/opportunities'
+import { Route as PostJobRouteImport } from './routes/post-job'
+import { Route as TalentRouteImport } from './routes/talent'
+import { Route as OpportunitiesIdRouteImport } from './routes/opportunities_.$id'
+import { Route as PassportIdRouteImport } from './routes/passport.$id'
+import { Route as TalentIdRouteImport } from './routes/talent_.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HowItWorksRoute = HowItWorksRouteImport.update({
+  id: '/how-it-works',
+  path: '/how-it-works',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const JoinRoute = JoinRouteImport.update({
+  id: '/join',
+  path: '/join',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OpportunitiesRoute = OpportunitiesRouteImport.update({
+  id: '/opportunities',
+  path: '/opportunities',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PostJobRoute = PostJobRouteImport.update({
+  id: '/post-job',
+  path: '/post-job',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TalentRoute = TalentRouteImport.update({
+  id: '/talent',
+  path: '/talent',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OpportunitiesIdRoute = OpportunitiesIdRouteImport.update({
+  id: '/opportunities_/$id',
+  path: '/opportunities/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PassportIdRoute = PassportIdRouteImport.update({
+  id: '/passport/$id',
+  path: '/passport/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TalentIdRoute = TalentIdRouteImport.update({
+  id: '/talent_/$id',
+  path: '/talent/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRoute
+  '/how-it-works': typeof HowItWorksRoute
+  '/join': typeof JoinRoute
+  '/opportunities': typeof OpportunitiesRoute
+  '/post-job': typeof PostJobRoute
+  '/talent': typeof TalentRoute
+  '/opportunities/$id': typeof OpportunitiesIdRoute
+  '/passport/$id': typeof PassportIdRoute
+  '/talent/$id': typeof TalentIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRoute
+  '/how-it-works': typeof HowItWorksRoute
+  '/join': typeof JoinRoute
+  '/opportunities': typeof OpportunitiesRoute
+  '/post-job': typeof PostJobRoute
+  '/talent': typeof TalentRoute
+  '/opportunities/$id': typeof OpportunitiesIdRoute
+  '/passport/$id': typeof PassportIdRoute
+  '/talent/$id': typeof TalentIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRoute
+  '/how-it-works': typeof HowItWorksRoute
+  '/join': typeof JoinRoute
+  '/opportunities': typeof OpportunitiesRoute
+  '/post-job': typeof PostJobRoute
+  '/talent': typeof TalentRoute
+  '/opportunities_/$id': typeof OpportunitiesIdRoute
+  '/passport/$id': typeof PassportIdRoute
+  '/talent_/$id': typeof TalentIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/dashboard'
+    | '/how-it-works'
+    | '/join'
+    | '/opportunities'
+    | '/post-job'
+    | '/talent'
+    | '/opportunities/$id'
+    | '/passport/$id'
+    | '/talent/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/dashboard'
+    | '/how-it-works'
+    | '/join'
+    | '/opportunities'
+    | '/post-job'
+    | '/talent'
+    | '/opportunities/$id'
+    | '/passport/$id'
+    | '/talent/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/dashboard'
+    | '/how-it-works'
+    | '/join'
+    | '/opportunities'
+    | '/post-job'
+    | '/talent'
+    | '/opportunities_/$id'
+    | '/passport/$id'
+    | '/talent_/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DashboardRoute: typeof DashboardRoute
+  HowItWorksRoute: typeof HowItWorksRoute
+  JoinRoute: typeof JoinRoute
+  OpportunitiesRoute: typeof OpportunitiesRoute
+  PostJobRoute: typeof PostJobRoute
+  TalentRoute: typeof TalentRoute
+  OpportunitiesIdRoute: typeof OpportunitiesIdRoute
+  PassportIdRoute: typeof PassportIdRoute
+  TalentIdRoute: typeof TalentIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +169,83 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/how-it-works': {
+      id: '/how-it-works'
+      path: '/how-it-works'
+      fullPath: '/how-it-works'
+      preLoaderRoute: typeof HowItWorksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/join': {
+      id: '/join'
+      path: '/join'
+      fullPath: '/join'
+      preLoaderRoute: typeof JoinRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/opportunities': {
+      id: '/opportunities'
+      path: '/opportunities'
+      fullPath: '/opportunities'
+      preLoaderRoute: typeof OpportunitiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/post-job': {
+      id: '/post-job'
+      path: '/post-job'
+      fullPath: '/post-job'
+      preLoaderRoute: typeof PostJobRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/talent': {
+      id: '/talent'
+      path: '/talent'
+      fullPath: '/talent'
+      preLoaderRoute: typeof TalentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/opportunities_/$id': {
+      id: '/opportunities_/$id'
+      path: '/opportunities/$id'
+      fullPath: '/opportunities/$id'
+      preLoaderRoute: typeof OpportunitiesIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/passport/$id': {
+      id: '/passport/$id'
+      path: '/passport/$id'
+      fullPath: '/passport/$id'
+      preLoaderRoute: typeof PassportIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/talent_/$id': {
+      id: '/talent_/$id'
+      path: '/talent/$id'
+      fullPath: '/talent/$id'
+      preLoaderRoute: typeof TalentIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DashboardRoute: DashboardRoute,
+  HowItWorksRoute: HowItWorksRoute,
+  JoinRoute: JoinRoute,
+  OpportunitiesRoute: OpportunitiesRoute,
+  PostJobRoute: PostJobRoute,
+  TalentRoute: TalentRoute,
+  OpportunitiesIdRoute: OpportunitiesIdRoute,
+  PassportIdRoute: PassportIdRoute,
+  TalentIdRoute: TalentIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
