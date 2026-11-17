@@ -26,9 +26,7 @@ export const Route = createFileRoute("/")({
 });
 function Home() {
   const { state } = useDemo();
-  const navigate = useNavigate();
-  const [q, setQ] = useState("");
-  const [location, setLocation] = useState("");
+
   return (
     <main>
       <section className="hero">
@@ -52,50 +50,21 @@ function Home() {
             <em>Your future.</em>
           </h1>
           <p className="hero-description">
-            Great work starts with a connection. Find your next job, grow your business, or discover
-            the right talent — right here in Namibia.
+            One portable profile for your skills and experience. A starting point for Namibian
+            jobseekers, tradespeople, digital freelancers and small businesses.
           </p>
-          <form
-            className="hero-search"
-            onSubmit={(e) => {
-              e.preventDefault();
-              navigate({ to: "/opportunities", search: { q, location } });
-            }}
-          >
-            <label>
-              <Search size={18} />
-              <input
-                aria-label="Search jobs or skills"
-                placeholder="Job title, skill or keyword"
-                value={q}
-                onChange={(e) => setQ(e.target.value)}
-              />
-            </label>
-            <label>
-              <MapPin size={17} />
-              <select
-                aria-label="Choose location"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-              >
-                <option value="">Anywhere</option>
-                {locations.map((l) => (
-                  <option key={l}>{l}</option>
-                ))}
-              </select>
-            </label>
-            <Button type="submit">
-              Find work <ArrowRight />
+          <div className="hero-actions">
+            <Button variant="secondary" size="lg" asChild>
+              <Link to={state.account ? "/dashboard" : "/join"}>
+                {state.account ? "Go to dashboard" : "Get started"}
+                <ArrowRight />
+              </Link>
             </Button>
-          </form>
-          <div className="hero-links">
-            <span>Looking for skilled people?</span>
-            <Link to="/talent">
-              Hire talent <ArrowUpRight size={12} className="inline" />
+            <Link to="/how-it-works" className="hero-learn">
+              How it works <ArrowUpRight size={16} />
             </Link>
-            <span>·</span>
-            <Link to="/join">Create your WorkPassport</Link>
           </div>
+          <p className="hero-demo-note">Explore a demo. No live hiring or verified credentials.</p>
         </div>
         <div className="hero-note">
           <BadgeCheck size={27} />
@@ -139,23 +108,18 @@ function Home() {
               <span className="eyebrow">THERE’S A PLACE FOR YOUR SKILLS</span>
               <h2>What kind of work moves you?</h2>
             </div>
-            <Link to="/opportunities">
-              Explore all categories <ArrowRight size={15} />
+            <Link to="/how-it-works">
+              Learn more <ArrowRight size={15} />
             </Link>
           </div>
           <div className="categories-grid">
             {categories.map((c, i) => {
               const Icon = categoryIcons[i] ?? Sparkles;
               return (
-                <Link
-                  key={c}
-                  to="/opportunities"
-                  search={{ category: c }}
-                  className="category-tile"
-                >
+                <div key={c} className="category-tile">
                   <Icon size={27} />
                   {c}
-                </Link>
+                </div>
               );
             })}
           </div>
@@ -165,22 +129,70 @@ function Home() {
         <div className="container">
           <div className="section-heading">
             <div>
-              <span className="eyebrow">YOUR NEXT CHAPTER</span>
-              <h2>Opportunities worth exploring</h2>
-              <p>A new role, a short-term gig, or a project you’ll be proud of.</p>
+              <span className="eyebrow">MORE THAN A CV</span>
+              <h2>Your work story, in one place</h2>
+              <p>
+                Make practical skills visible, whether you learned in a classroom, a workshop or on
+                the job.
+              </p>
             </div>
-            <Link to="/opportunities">
-              View all opportunities <ArrowRight size={15} />
-            </Link>
           </div>
-          <div className="jobs-grid">
-            {state.jobs.slice(0, 3).map((job) => (
-              <JobCard key={job.id} job={job} />
-            ))}
+          <div className="steps-grid">
+            <div>
+              <h3>For your next opportunity</h3>
+              <p>
+                Jobseekers and informal tradespeople can show self-declared skills and describe
+                their experience. No previous ratings needed.
+              </p>
+            </div>
+            <div>
+              <h3>For independent work</h3>
+              <p>
+                Digital freelancers and service providers can describe their work and prepare demo
+                quotations. Your goals can grow with you.
+              </p>
+            </div>
+            <div>
+              <h3>For a growing business</h3>
+              <p>
+                Small and informal businesses can introduce their services and explore hiring help,
+                without pretending to hold verified credentials.
+              </p>
+            </div>
           </div>
-          <p className="hint mt-5">
-            A glimpse of what’s possible · All listings are demonstration opportunities.
-          </p>
+        </div>
+      </section>
+      <section className="section">
+        <div className="container">
+          <div className="section-heading">
+            <div>
+              <span className="eyebrow">A WELCOMING, HONEST START</span>
+              <h2>Everyone has something to offer</h2>
+            </div>
+          </div>
+          <div className="steps-grid">
+            <div>
+              <h3>Start where you are</h3>
+              <p>
+                Short steps, clear choices and guided help. No formal experience is required to make
+                a demo profile. Ask a trusted person for help if you need it.
+              </p>
+            </div>
+            <div>
+              <h3>A passport you can share</h3>
+              <p>
+                A digital profile brings skills, work examples and references together. Seeded demo
+                passports can be shared; your personal demo stays on this device.
+              </p>
+            </div>
+            <div>
+              <h3>Trust without shortcuts</h3>
+              <p>
+                Self-declared does not mean verified. Identity and evidence checks are not live. No
+                sensitive documents are collected, and no client click awards verification.
+              </p>
+            </div>
+          </div>
         </div>
       </section>
       <section className="section">

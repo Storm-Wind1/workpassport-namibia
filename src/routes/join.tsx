@@ -1,10 +1,325 @@
-import { createFileRoute, useNavigate, Link } from '@tanstack/react-router';
-import { useState } from 'react';
-import { ArrowRight } from 'lucide-react';
-import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
-import { useDemo } from '@/features/workpassport/context';
-import { activities, locations, type Activity } from '@/features/workpassport/types';
-import { pageHead } from '@/features/workpassport/shared';
-export const Route=createFileRoute('/join')({head:()=>pageHead('Create your WorkPassport','Start your demo account as an individual or business and choose the activities that fit your ambitions.'),component:Join});
-function Join(){const {state,update}=useDemo();const navigate=useNavigate();const [kind,setKind]=useState<'Individual'|'Business'>('Individual');const [selected,setSelected]=useState<Activity[]>(['Find employment']);const [name,setName]=useState('');const [email,setEmail]=useState('');const [location,setLocation]=useState('Windhoek');const [skills,setSkills]=useState('');return <main className="container page-main"><div className="form-panel"><span className="eyebrow">YOUR NEXT CHAPTER STARTS HERE</span><h1>One passport. Many possibilities.</h1><p>Tell us a little about yourself. You can choose more than one activity, and add others as you grow.</p>{state.account&&<div className="notice">You’re signed in as {state.account.name}. <Link to="/dashboard" className="underline">Go to your dashboard</Link>, or create a different demo account below.</div>}<form onSubmit={e=>{e.preventDefault();if(!selected.length){toast.error('Choose at least one activity');return;}if(update(s=>({...s,account:{id:crypto.randomUUID(),name:name.trim(),email,kind,activities:selected,location,skills:skills.split(',').map(v=>v.trim()).filter(Boolean)}}))){toast.success('Welcome to WorkPassport Namibia');navigate({to:'/dashboard'});}}}><div className="form-group"><span className="form-label">I’m joining as</span><div className="choice-grid">{(['Individual','Business'] as const).map(v=><label key={v} className="choice-label"><input type="radio" name="kind" checked={kind===v} onChange={()=>setKind(v)}/>{v}</label>)}</div></div><div className="form-row"><div className="form-group"><label className="form-label" htmlFor="name">{kind==='Business'?'Business name':'Your full name'}</label><input id="name" className="form-input" required minLength={2} value={name} onChange={e=>setName(e.target.value)} placeholder={kind==='Business'?'Your business':'e.g. Anna Shilongo'}/></div><div className="form-group"><label className="form-label" htmlFor="email">Email address</label><input id="email" type="email" className="form-input" required value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@example.com"/></div></div><div className="form-group"><label className="form-label" htmlFor="location">Your location</label><select id="location" className="form-input" value={location} onChange={e=>setLocation(e.target.value)}>{locations.map(l=><option key={l}>{l}</option>)}</select></div><div className="form-group"><span className="form-label">What would you like to do?</span><div className="choice-grid">{activities.map(a=><label key={a} className="choice-label"><input type="checkbox" checked={selected.includes(a)} onChange={()=>setSelected(s=>s.includes(a)?s.filter(x=>x!==a):[...s,a])}/>{a}</label>)}</div></div><div className="form-group"><label className="form-label" htmlFor="skills">Your skills (separated by commas)</label><input id="skills" className="form-input" value={skills} onChange={e=>setSkills(e.target.value)} placeholder="e.g. React, Carpentry, Graphic design"/><p className="hint">These are self-declared skills, not verified qualifications.</p></div><Button className="w-full" size="lg" type="submit">Create demo account <ArrowRight/></Button><p className="hint">No password needed for this demo. Data stays on this browser only; do not enter sensitive information. This is not secure authentication.</p></form></div></main>}
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useRef, useState, useEffect } from "react";
+import { UserRound, Building2, ArrowLeft, ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useDemo } from "@/features/workpassport/context";
+import { pageHead } from "@/features/workpassport/shared";
+import { goalOptions, goalLabel, locations, categories } from "@/features/workpassport/types";
+import {
+  createDemoProfile,
+  registrationError,
+  type Registration,
+} from "@/features/workpassport/onboarding";
+export const Route = createFileRoute("/join")({
+  head: () =>
+    pageHead(
+      "Create your demo profile",
+      "Four simple steps for individuals and businesses. Informal businesses welcome; verification is not live.",
+    ),
+  component: Join,
+});
+function Join() {
+  const { state, update } = useDemo();
+  const navigate = useNavigate();
+  const [step, setStep] = useState(1);
+  const [error, setError] = useState("");
+  const heading = useRef<HTMLHeadingElement>(null);
+  const [d, setD] = useState<Registration>({
+    kind: "Individual",
+    name: "",
+    email: "",
+    location: "Windhoek",
+    skills: "",
+    phone: "",
+    industry: "",
+    contactName: "",
+    businessStatus: "informal",
+    registrationNumber: "",
+    activities: ["Find employment"],
+    consent: false,
+  });
+  useEffect(() => {
+    heading.current?.focus();
+  }, [step]);
+  const change = (key: keyof Registration, value: unknown) =>
+    setD((prev) => ({ ...prev, [key]: value }));
+  function advance() {
+    const err = registrationError(step, d);
+    setError(err ?? "");
+    if (err) return;
+    if (step < 4) {
+      setStep(step + 1);
+      return;
+    }
+    const account = createDemoProfile(d, crypto.randomUUID());
+    if (update((s) => ({ ...s, account, savedAccount: account }))) navigate({ to: "/dashboard" });
+  }
+  function field(
+    label: string,
+    key: "name" | "email" | "phone" | "skills" | "contactName" | "registrationNumber",
+    required = false,
+    type = "text",
+  ) {
+    return (
+      <div className="form-group">
+        <label className="form-label" htmlFor={key}>
+          {label}
+        </label>
+        <input
+          id={key}
+          className="form-input"
+          type={type}
+          required={required}
+          minLength={required && type !== "email" ? 2 : undefined}
+          value={d[key]}
+          onChange={(e) => change(key, e.target.value)}
+        />
+      </div>
+    );
+  }
+  return (
+    <main className="container page-main">
+      <div className="form-panel wizard">
+        <span className="eyebrow">ONE PASSPORT. MANY POSSIBILITIES.</span>
+        <div className="wizard-progress">
+          <span>Step {step} of 4</span>
+          <span>{["Your profile", "Demo details", "Your goals", "Review"][step - 1]}</span>
+        </div>
+        <progress max={4} value={step} aria-label="Registration progress" />
+        <h1 ref={heading} tabIndex={-1}>
+          {
+            [
+              "How are you joining?",
+              "A little about you",
+              "What would you like to do?",
+              "Ready for your next chapter?",
+            ][step - 1]
+          }
+        </h1>
+        <p>Use made-up demo details. No real identity documents or private information.</p>
+        {state.account && step === 1 && (
+          <div className="notice">
+            You already have a demo profile.{" "}
+            <Link to="/dashboard" className="underline">
+              Add activities in your dashboard
+            </Link>{" "}
+            without another account. Creating a new profile switches your workspace; previous demo
+            records remain saved.
+          </div>
+        )}
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            advance();
+          }}
+        >
+          {step === 1 && (
+            <div className="choice-grid">
+              {(["Individual", "Business"] as const).map((kind) => (
+                <label className="choice-label profile-choice" key={kind}>
+                  <input
+                    type="radio"
+                    name="kind"
+                    checked={d.kind === kind}
+                    onChange={() => {
+                      setD((p) => ({
+                        ...p,
+                        kind,
+                        activities: [kind === "Individual" ? "Find employment" : "Hire workers"],
+                      }));
+                      setError("");
+                    }}
+                  />
+                  {kind === "Individual" ? <UserRound size={28} /> : <Building2 size={28} />}
+                  <span>
+                    <strong>{kind}</strong>
+                    <small>
+                      {kind === "Individual"
+                        ? "Find work, offer your skills, or hire a helping hand."
+                        : "Recruit people or offer services as a small business. Informal businesses welcome."}
+                    </small>
+                  </span>
+                </label>
+              ))}
+            </div>
+          )}
+          {step === 2 && (
+            <>
+              {field(d.kind === "Business" ? "Business / trading name" : "Full name", "name", true)}
+              {d.kind === "Business" && (
+                <>
+                  <div className="form-group">
+                    <label htmlFor="industry" className="form-label">
+                      Industry / category
+                    </label>
+                    <select
+                      id="industry"
+                      className="form-input"
+                      required
+                      value={d.industry}
+                      onChange={(e) => change("industry", e.target.value)}
+                    >
+                      <option value="">Choose an industry</option>
+                      {[...categories, "Other"].map((c) => (
+                        <option key={c}>{c}</option>
+                      ))}
+                    </select>
+                  </div>
+                  {field("Contact person’s name", "contactName", true)}
+                  <fieldset className="form-group">
+                    <legend className="form-label">
+                      Business status — self-declared, unverified
+                    </legend>
+                    <div className="choice-grid">
+                      {(["informal", "registered"] as const).map((status) => (
+                        <label key={status} className="choice-label">
+                          <input
+                            type="radio"
+                            name="status"
+                            checked={d.businessStatus === status}
+                            onChange={() => change("businessStatus", status)}
+                          />
+                          {status === "informal" ? "Informal business" : "Registered business"}
+                        </label>
+                      ))}
+                    </div>
+                  </fieldset>
+                  {d.businessStatus === "registered" && (
+                    <>
+                      {field("Registration number (optional demo text only)", "registrationNumber")}
+                      <p className="hint">
+                        A number is not proof of registration. Do not enter a real document or
+                        upload anything.
+                      </p>
+                    </>
+                  )}
+                  <div className="notice">
+                    You are the owner/admin of this demo business workspace. Staff roles can be
+                    delegated only in a future secure version.
+                  </div>
+                </>
+              )}
+              {field(d.kind === "Business" ? "Business email" : "Email", "email", true, "email")}
+              <div className="form-group">
+                <label htmlFor="town" className="form-label">
+                  {d.kind === "Business" ? "City / town" : "Town"}
+                </label>
+                <select
+                  id="town"
+                  className="form-input"
+                  value={d.location}
+                  onChange={(e) => change("location", e.target.value)}
+                >
+                  {locations.map((l) => (
+                    <option key={l}>{l}</option>
+                  ))}
+                </select>
+              </div>
+              {d.kind === "Individual" && (
+                <>
+                  {field("Phone (optional, demo text — not saved)", "phone", false, "tel")}
+                  {field("Simple skills (optional, separated by commas)", "skills")}
+                  <p className="hint">
+                    Skills are self-declared, not verified. No experience or ratings needed to
+                    begin.
+                  </p>
+                </>
+              )}
+            </>
+          )}
+          {step === 3 && (
+            <>
+              <p className="mb-5 text-muted-foreground">
+                Choose one or more. You can add or change goals later.
+              </p>
+              <div className="choice-grid">
+                {goalOptions(d.kind).map((g) => (
+                  <label key={g.value} className="choice-label">
+                    <input
+                      type="checkbox"
+                      checked={d.activities.includes(g.value)}
+                      onChange={() =>
+                        change(
+                          "activities",
+                          d.activities.includes(g.value)
+                            ? d.activities.filter((x) => x !== g.value)
+                            : [...d.activities, g.value],
+                        )
+                      }
+                    />
+                    {g.label}
+                  </label>
+                ))}
+              </div>
+            </>
+          )}
+          {step === 4 && (
+            <>
+              <dl className="review-list">
+                {[
+                  ["Profile", d.kind],
+                  ["Name", d.name],
+                  ["Email", d.email],
+                  ["Town", d.location],
+                  ["Goals", d.activities.map((a) => goalLabel(a, d.kind)).join(", ")],
+                  ...(d.kind === "Business"
+                    ? [
+                        ["Industry", d.industry],
+                        ["Contact person", d.contactName],
+                        ["Business status", `${d.businessStatus} — unverified`],
+                        ["Workspace role", "Owner/admin (demo)"],
+                      ]
+                    : [["Skills", d.skills || "Not added"]]),
+                ].map(([k, v]) => (
+                  <div key={k}>
+                    <dt>{k}</dt>
+                    <dd>{v}</dd>
+                  </div>
+                ))}
+              </dl>
+              <div className="notice">
+                Verification pending: identity,{" "}
+                {d.kind === "Business"
+                  ? "business details and representative"
+                  : "skills, experience and references"}{" "}
+                have not been checked. Secure verification is coming later.
+              </div>
+              <label className="choice-label">
+                <input
+                  type="checkbox"
+                  checked={d.consent}
+                  onChange={(e) => change("consent", e.target.checked)}
+                />
+                I will use demo data only. I understand this is not secure sign-in and nothing is
+                sent to employers.
+              </label>
+            </>
+          )}
+          {error && (
+            <p role="alert" className="form-error">
+              {error}
+            </p>
+          )}
+          <div className="wizard-actions">
+            <Button
+              type="button"
+              variant="outline"
+              disabled={step === 1}
+              onClick={() => {
+                setStep(step - 1);
+                setError("");
+              }}
+            >
+              <ArrowLeft />
+              Back
+            </Button>
+            <Button type="submit">
+              {step === 4 ? "Create demo profile" : "Next"}
+              <ArrowRight />
+            </Button>
+          </div>
+        </form>
+      </div>
+    </main>
+  );
+}

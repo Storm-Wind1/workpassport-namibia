@@ -30,8 +30,8 @@ describe("WorkPassport rules", () => {
       dashboardSections(["Find employment", "Offer freelance services", "Hire workers"]),
     ).toEqual({ employment: true, services: true, hiring: true });
   });
-  it("allows business management to access hiring", () => {
-    expect(dashboardSections(["Manage a business"]).hiring).toBe(true);
+  it("allows subcontractor support to access hiring", () => {
+    expect(dashboardSections(["Hire support"]).hiring).toBe(true);
   });
   it("persists demo applications and quotations locally", () => {
     const state = initialState();

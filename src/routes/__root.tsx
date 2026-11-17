@@ -10,6 +10,7 @@ import {
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
 
+import { HelpProvider } from "@/features/workpassport/help";
 import { DemoProvider } from "@/features/workpassport/context";
 import { Header, Footer } from "@/features/workpassport/shell";
 import { Toaster } from "@/components/ui/sonner";
@@ -91,10 +92,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:description", content: "Your Skills. Your Opportunities. Your Future." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      
     ],
     links: [
-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" },
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap",
+      },
       {
         rel: "stylesheet",
         href: appCss,
@@ -128,7 +131,14 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <DemoProvider><Header /><Outlet /><Footer /><Toaster /></DemoProvider>
+      <DemoProvider>
+        <HelpProvider>
+          <Header />
+          <Outlet />
+          <Footer />
+          <Toaster />
+        </HelpProvider>
+      </DemoProvider>
     </QueryClientProvider>
   );
 }

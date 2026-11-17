@@ -11,11 +11,14 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as HelpRouteImport } from './routes/help'
 import { Route as HowItWorksRouteImport } from './routes/how-it-works'
 import { Route as JoinRouteImport } from './routes/join'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as OpportunitiesRouteImport } from './routes/opportunities'
 import { Route as PostJobRouteImport } from './routes/post-job'
 import { Route as TalentRouteImport } from './routes/talent'
+import { Route as TrustRouteImport } from './routes/trust'
 import { Route as OpportunitiesIdRouteImport } from './routes/opportunities_.$id'
 import { Route as PassportIdRouteImport } from './routes/passport.$id'
 import { Route as TalentIdRouteImport } from './routes/talent_.$id'
@@ -30,6 +33,11 @@ const DashboardRoute = DashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HelpRoute = HelpRouteImport.update({
+  id: '/help',
+  path: '/help',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const HowItWorksRoute = HowItWorksRouteImport.update({
   id: '/how-it-works',
   path: '/how-it-works',
@@ -38,6 +46,11 @@ const HowItWorksRoute = HowItWorksRouteImport.update({
 const JoinRoute = JoinRouteImport.update({
   id: '/join',
   path: '/join',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OpportunitiesRoute = OpportunitiesRouteImport.update({
@@ -53,6 +66,11 @@ const PostJobRoute = PostJobRouteImport.update({
 const TalentRoute = TalentRouteImport.update({
   id: '/talent',
   path: '/talent',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TrustRoute = TrustRouteImport.update({
+  id: '/trust',
+  path: '/trust',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OpportunitiesIdRoute = OpportunitiesIdRouteImport.update({
@@ -74,11 +92,14 @@ const TalentIdRoute = TalentIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
+  '/help': typeof HelpRoute
   '/how-it-works': typeof HowItWorksRoute
   '/join': typeof JoinRoute
+  '/login': typeof LoginRoute
   '/opportunities': typeof OpportunitiesRoute
   '/post-job': typeof PostJobRoute
   '/talent': typeof TalentRoute
+  '/trust': typeof TrustRoute
   '/opportunities/$id': typeof OpportunitiesIdRoute
   '/passport/$id': typeof PassportIdRoute
   '/talent/$id': typeof TalentIdRoute
@@ -86,11 +107,14 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
+  '/help': typeof HelpRoute
   '/how-it-works': typeof HowItWorksRoute
   '/join': typeof JoinRoute
+  '/login': typeof LoginRoute
   '/opportunities': typeof OpportunitiesRoute
   '/post-job': typeof PostJobRoute
   '/talent': typeof TalentRoute
+  '/trust': typeof TrustRoute
   '/opportunities/$id': typeof OpportunitiesIdRoute
   '/passport/$id': typeof PassportIdRoute
   '/talent/$id': typeof TalentIdRoute
@@ -99,11 +123,14 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
+  '/help': typeof HelpRoute
   '/how-it-works': typeof HowItWorksRoute
   '/join': typeof JoinRoute
+  '/login': typeof LoginRoute
   '/opportunities': typeof OpportunitiesRoute
   '/post-job': typeof PostJobRoute
   '/talent': typeof TalentRoute
+  '/trust': typeof TrustRoute
   '/opportunities_/$id': typeof OpportunitiesIdRoute
   '/passport/$id': typeof PassportIdRoute
   '/talent_/$id': typeof TalentIdRoute
@@ -113,11 +140,14 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/dashboard'
+    | '/help'
     | '/how-it-works'
     | '/join'
+    | '/login'
     | '/opportunities'
     | '/post-job'
     | '/talent'
+    | '/trust'
     | '/opportunities/$id'
     | '/passport/$id'
     | '/talent/$id'
@@ -125,11 +155,14 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/dashboard'
+    | '/help'
     | '/how-it-works'
     | '/join'
+    | '/login'
     | '/opportunities'
     | '/post-job'
     | '/talent'
+    | '/trust'
     | '/opportunities/$id'
     | '/passport/$id'
     | '/talent/$id'
@@ -137,11 +170,14 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/dashboard'
+    | '/help'
     | '/how-it-works'
     | '/join'
+    | '/login'
     | '/opportunities'
     | '/post-job'
     | '/talent'
+    | '/trust'
     | '/opportunities_/$id'
     | '/passport/$id'
     | '/talent_/$id'
@@ -150,11 +186,14 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRoute
+  HelpRoute: typeof HelpRoute
   HowItWorksRoute: typeof HowItWorksRoute
   JoinRoute: typeof JoinRoute
+  LoginRoute: typeof LoginRoute
   OpportunitiesRoute: typeof OpportunitiesRoute
   PostJobRoute: typeof PostJobRoute
   TalentRoute: typeof TalentRoute
+  TrustRoute: typeof TrustRoute
   OpportunitiesIdRoute: typeof OpportunitiesIdRoute
   PassportIdRoute: typeof PassportIdRoute
   TalentIdRoute: typeof TalentIdRoute
@@ -176,6 +215,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/help': {
+      id: '/help'
+      path: '/help'
+      fullPath: '/help'
+      preLoaderRoute: typeof HelpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/how-it-works': {
       id: '/how-it-works'
       path: '/how-it-works'
@@ -188,6 +234,13 @@ declare module '@tanstack/react-router' {
       path: '/join'
       fullPath: '/join'
       preLoaderRoute: typeof JoinRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/opportunities': {
@@ -209,6 +262,13 @@ declare module '@tanstack/react-router' {
       path: '/talent'
       fullPath: '/talent'
       preLoaderRoute: typeof TalentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/trust': {
+      id: '/trust'
+      path: '/trust'
+      fullPath: '/trust'
+      preLoaderRoute: typeof TrustRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/opportunities_/$id': {
@@ -238,11 +298,14 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRoute,
+  HelpRoute: HelpRoute,
   HowItWorksRoute: HowItWorksRoute,
   JoinRoute: JoinRoute,
+  LoginRoute: LoginRoute,
   OpportunitiesRoute: OpportunitiesRoute,
   PostJobRoute: PostJobRoute,
   TalentRoute: TalentRoute,
+  TrustRoute: TrustRoute,
   OpportunitiesIdRoute: OpportunitiesIdRoute,
   PassportIdRoute: PassportIdRoute,
   TalentIdRoute: TalentIdRoute,
