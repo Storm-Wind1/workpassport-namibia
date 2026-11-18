@@ -120,6 +120,7 @@ function Join() {
                   <input
                     type="radio"
                     name="kind"
+                    aria-label={kind}
                     checked={d.kind === kind}
                     onChange={() => {
                       setD((p) => ({

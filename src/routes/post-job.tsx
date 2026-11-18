@@ -1,9 +1,10 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useDemo } from "@/features/workpassport/context";
 import { categories, locations, jobTypes } from "@/features/workpassport/types";
+import { dashboardSections } from "@/features/workpassport/service";
 import { PageHeader, pageHead, Empty } from "@/features/workpassport/shared";
 export const Route = createFileRoute("/post-job")({
   head: () =>
@@ -14,7 +15,7 @@ export const Route = createFileRoute("/post-job")({
   component: PostJob,
 });
 function PostJob() {
-  const { state, update } = useDemo();
+  const { state, ready, update } = useDemo();
   const navigate = useNavigate();
   const [title, setTitle] = useState("");
   const [company, setCompany] = useState(
@@ -27,6 +28,23 @@ function PostJob() {
   const [description, setDescription] = useState("");
   const [skills, setSkills] = useState("");
   const account = state.account;
+  useEffect(() => {
+    if (account?.kind === "Business") setCompany(account.name);
+  }, [account?.id]);
+  if (!ready) return <main className="loading-state">Loading demo workspace…</main>;
+  if (account && !dashboardSections(account.activities).hiring)
+    return (
+      <main className="container page-main">
+        <Empty title="Add hiring when you need it">
+          <p className="mb-5">
+            Choose Hire help in your dashboard to open posting tools. No new account is needed.
+          </p>
+          <Button asChild>
+            <Link to="/dashboard">Go to dashboard</Link>
+          </Button>
+        </Empty>
+      </main>
+    );
   if (!account)
     return (
       <main className="container page-main">
@@ -69,14 +87,6 @@ function PostJob() {
                   },
                   ...s.jobs,
                 ],
-                account: s.account
-                  ? {
-                      ...s.account,
-                      activities: s.account.activities.includes("Hire workers")
-                        ? s.account.activities
-                        : [...s.account.activities, "Hire workers"],
-                    }
-                  : null,
               }))
             ) {
               toast.success("Demo opportunity created");

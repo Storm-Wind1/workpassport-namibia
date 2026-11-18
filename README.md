@@ -30,6 +30,10 @@ src/
     shared.tsx                Cards, headers and metadata helpers
     shell.tsx                 Shared navigation and footer
     profile.tsx               Reusable digital WorkPassport
+    onboarding.ts             Branched registration validation and profile creation
+    onboarding.test.ts        Registration, legacy migration, trust and FAQ tests
+    assistant.ts              Typed local FAQ adapter and contextual guidance
+    help.tsx                  Global accessible guided-help dialog
   routes/                     Typed file-based pages
   styles.css                  Semantic design tokens and responsive styles
   test/                       Routing tests and test setup
@@ -72,3 +76,5 @@ Add server-enforced authentication, ownership, RBAC and audit logging before acc
 `assistant.ts` defines `AssistantService`, typed requests/responses, local FAQ matching and page hints. `help.tsx` provides the global keyboard-accessible dialog, suggested questions and text input. It makes no remote calls and saves no conversation to localStorage. Live human support is not connected.
 
 A future AI adapter must call an authenticated, rate-limited server proxy; never expose credentials in the browser. Ground answers in approved help content, cite sources, reject verification and eligibility decisions, minimize personal data, use uncertainty/fallbacks to mitigate hallucinations, and offer explicit human handoff when a real support channel exists. AI cannot create verified badges or authorize workspace access.
+
+Hiring tools are opt-in for individuals and follow the selected business goals. Posting does not silently add a goal: choose hiring in the dashboard first. The posting page pre-fills the active business trading name after device data loads. This is UX guidance only, not a security boundary.

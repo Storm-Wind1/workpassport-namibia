@@ -78,7 +78,15 @@ export function pageHint(path: string) {
 }
 export const localAssistant: AssistantService = {
   async ask({ question }) {
-    const entry = faq.find((f) => f.pattern.test(question));
+    const normalized = question.trim().toLowerCase();
+    const entry =
+      faq.find((f) => f.question.toLowerCase() === normalized) ??
+      faq.find(
+        (f) =>
+          /verif|police|credential|safe|eligible/i.test(normalized) &&
+          f.question === "What does verified mean?",
+      ) ??
+      faq.find((f) => f.pattern.test(normalized));
     return {
       source: "local-faq",
       answer:

@@ -15,7 +15,7 @@ export interface Registration {
   consent: boolean;
 }
 export function registrationError(step: number, d: Registration): string | null {
-  if (step === 2) {
+  if (step === 2 || step === 4) {
     if (d.name.trim().length < 2)
       return d.kind === "Business"
         ? "Enter your business or trading name."
@@ -26,7 +26,7 @@ export function registrationError(step: number, d: Registration): string | null 
       return "Choose an industry and enter the contact person’s name.";
   }
   if (
-    step === 3 &&
+    (step === 3 || step === 4) &&
     (!d.activities.length ||
       d.activities.some((a) => !goalOptions(d.kind).some((g) => g.value === a)))
   )

@@ -1,8 +1,7 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   ArrowRight,
   ArrowUpRight,
-  Search,
   MapPin,
   BadgeCheck,
   Users,
@@ -10,12 +9,11 @@ import {
   Globe2,
   Sparkles,
 } from "lucide-react";
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import workersPhoto from "@/assets/workers.jpg";
 import { useDemo } from "@/features/workpassport/context";
-import { JobCard, categoryIcons, pageHead } from "@/features/workpassport/shared";
-import { categories, locations } from "@/features/workpassport/types";
+import { categoryIcons, pageHead } from "@/features/workpassport/shared";
+import { categories } from "@/features/workpassport/types";
 export const Route = createFileRoute("/")({
   head: () =>
     pageHead(

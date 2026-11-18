@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, type ReactNode } from "react";
+import { createContext, useContext, useState, useRef, useEffect, type ReactNode } from "react";
 import { useRouterState } from "@tanstack/react-router";
 import * as Dialog from "@radix-ui/react-dialog";
 import { MessageCircle, Send, X } from "lucide-react";
@@ -13,6 +13,10 @@ export function HelpProvider({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const [question, setQuestion] = useState("");
   const [messages, setMessages] = useState<{ question: string; answer: string }[]>([]);
+  const logEnd = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    logEnd.current?.scrollIntoView({ block: "nearest" });
+  }, [messages]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const path = useRouterState({ select: (s) => s.location.pathname });
@@ -81,6 +85,7 @@ export function HelpProvider({ children }: { children: ReactNode }) {
                   </div>
                 ))}
               </div>
+              <div ref={logEnd} />
               {error && <p role="alert">{error}</p>}
             </div>
             <form

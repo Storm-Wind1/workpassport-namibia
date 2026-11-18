@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useDemo } from "@/features/workpassport/context";
 import { JobCard, PageHeader, Empty, pageHead } from "@/features/workpassport/shared";
 import { categories, locations, jobTypes } from "@/features/workpassport/types";
-import { matchReasons } from "@/features/workpassport/service";
+import { dashboardSections, matchReasons } from "@/features/workpassport/service";
 interface Filters {
   q?: string | undefined;
   location?: string | undefined;
@@ -51,12 +51,14 @@ function Opportunities() {
         title="Find your next opportunity"
         description="A full-time role, a helping hand, a fresh project. Find work that fits you."
       >
-        <Button asChild>
-          <Link to="/post-job">
-            <Plus />
-            Post an opportunity
-          </Link>
-        </Button>
+        {state.account && dashboardSections(state.account.activities).hiring && (
+          <Button asChild>
+            <Link to="/post-job">
+              <Plus />
+              Post an opportunity
+            </Link>
+          </Button>
+        )}
       </PageHeader>
       <div className="filters">
         <label className="field search-field">

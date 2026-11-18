@@ -24,4 +24,12 @@ describe("App routing", () => {
     expect(matches.at(-1)?.routeId).toBe(detailId);
     expect(matches.map(match => match.routeId)).not.toContain(listId);
   });
+
+  it.each(["/join", "/login", "/trust", "/help", "/dashboard", "/post-job", "/how-it-works"])(
+    "opens the guided experience at %s",
+    (path) => {
+      const router = createRouter({ routeTree, context: { queryClient: new QueryClient() } });
+      expect(router.matchRoutes(path).at(-1)?.routeId).toBe(path);
+    },
+  );
 });
