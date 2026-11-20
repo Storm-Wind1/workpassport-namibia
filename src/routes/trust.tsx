@@ -30,8 +30,8 @@ function Trust() {
     a.kind === "Business"
       ? [
           "Trading name and business details",
-          "Registration proof, where applicable",
-          "Authorized representative",
+          ...(a.businessStatus === "registered" ? ["Registration record for the trading name"] : []),
+          "Permission for the contact person to represent the business",
           "Business contact checks",
         ]
       : [
@@ -39,17 +39,17 @@ function Trust() {
           "Self-declared skills — unverified",
           "Confirmed work evidence — future review",
           "References — unverified until checked",
-          "Relevant police clearance — optional for special trust-sensitive occupations",
+          "Police clearance certificate (certificate of good conduct), if relevant to the role",
         ];
   return (
     <main className="container page-main">
       <PageHeader
         title="Trust & Verification"
-        description="Honest information. Clear boundaries. No invented badges."
+        description="See which details a reviewer would check and what each check means."
       />
       <div className="notice">
         <Shield className="inline mr-2" size={18} />
-        Verification coming after secure backend. Identity and credential checks are not live.
+        No evidence has been submitted. Document checks will open when secure review is available.
       </div>
       {a.kind === "Business" && (
         <p className="mb-5">
@@ -86,7 +86,7 @@ function Trust() {
             </li>
           </ol>
           <p className="hint">
-            Police clearance is not compulsory for everyone and does not prove competence or safety.
+            In WorkPassport, a police clearance check would apply only where relevant to a particular role. A certificate alone cannot tell you whether someone is trustworthy or skilled.
             A verified identity would not automatically verify skills or eligibility.
           </p>
           <p className="hint">
