@@ -179,9 +179,9 @@ function Dashboard() {
           </Button>
         </section>
       )}
-      {a.kind === "Business" && (
+      {a.kind === "Business" && a.role === "owner" && (
         <section className="dashboard-section">
-          <h2>Owner / admin workspace</h2>
+          <h2>Business administration</h2>
           <p className="hint">
             You created this business workspace and are its owner/admin in this demo. Frontend
             access is not security; staff delegation requires a future secure backend.
