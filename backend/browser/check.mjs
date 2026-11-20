@@ -6,6 +6,7 @@ try {
   const owner = await browser.newPage();
   const worker = await browser.newPage();
   async function register(page, name) {
+    page.on("response", res => { if (res.url().includes("/api/")) console.log(new URL(res.url()).pathname, res.status()); });
     await page.goto("http://127.0.0.1:8000");
     await page.getByText("Sign in to post a job or apply.").waitFor();
     await page.getByLabel("Email", {exact:true}).fill(name + Date.now() + "@example.test");
@@ -13,6 +14,7 @@ try {
     await page.getByLabel("Name for a new account").fill(name);
     await page.getByRole("button",{name:"Create account"}).click();
     await page.getByText("Signed in.", {exact:true}).waitFor();
+    assert.equal((await page.request.get("http://127.0.0.1:8000/api/me")).status(), 200);
   }
   await register(owner, "TestEmployer");
   const post = owner.locator("#post");
