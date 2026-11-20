@@ -134,6 +134,33 @@ try {
   await page.goto(base+"/post-job");
   await link("Create account").click();
   await page.waitForURL("**/join");
+  await main.getByRole("radio",{name:"Business"}).check();
+  await button("Next").click();
+  for (const [label,value] of [["Business / trading name","Demo Hiring Team"],["Contact person’s name","Demo Owner"],["Business email","owner@example.test"]]) {
+    await main.getByLabel(label,{exact:true}).fill(value);
+  }
+  await main.getByLabel("Industry / category").selectOption("Carpentry");
+  await main.getByLabel("City / town").selectOption("Windhoek");
+  await button("Next").click();
+  await main.getByLabel("Recruit workers").check();
+  await button("Next").click();
+  await main.getByRole("checkbox").check();
+  await button("Create demo profile").click();
+  await page.waitForURL("**/dashboard");
+  assert.equal(await button("Delegate staff roles — coming later").isDisabled(),true);
+  await link("Find talent").click();
+  await main.getByLabel("Search workers").fill("Demo Worker");
+  await link("View passport").click();
+  await main.getByRole("heading",{name:"Demo Worker"}).waitFor();
+  await main.getByLabel("What do you need help with?").waitFor();
+  await page.getByRole("button",{name:"Sign out of demo"}).click();
+  await page.goto(base+"/login");
+  await main.getByLabel("Choose a demo profile on this device").selectOption({label:"Demo Worker · Individual"});
+  await button("Resume saved demo on this device").click();
+  await main.getByLabel("List my profile in this browser’s worker directory").uncheck();
+  await page.goto(base+"/talent");
+  await main.getByLabel("Search workers").fill("Demo Worker");
+  await main.getByText("No matching workers").waitFor();
 } finally {
   await browser.close();
 }
