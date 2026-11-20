@@ -240,7 +240,7 @@ function Dashboard() {
           )}
         </section>
       )}
-      {sections.employment && (
+      {(sections.employment || apps.length > 0) && (
         <section className="dashboard-section">
           <h2>Your applications</h2>
           {apps.length ? (
@@ -381,7 +381,7 @@ function Dashboard() {
           </section>
         </>
       )}
-      {(sections.hiring || sections.services) && (
+      {(sections.hiring || sections.services || quotes.length > 0) && (
         <section className="dashboard-section">
           <h2>Your quotation requests</h2>
           {quotes.length ? (
