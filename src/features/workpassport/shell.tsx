@@ -62,7 +62,7 @@ export function Header() {
                 </Button>
                 <Button asChild>
                   <Link to="/join">
-                    Get started
+                    Sign up
                     <ArrowUpRight />
                   </Link>
                 </Button>
