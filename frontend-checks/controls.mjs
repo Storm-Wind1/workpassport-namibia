@@ -161,6 +161,20 @@ try {
   await page.goto(base+"/talent");
   await main.getByLabel("Search workers").fill("Demo Worker");
   await main.getByText("No matching workers").waitFor();
+
+  // Exercise the root recovery control with a damaged local demo record.
+  const original = await page.evaluate(() => localStorage.getItem("workpassport-demo-v1"));
+  const firstId = await page.evaluate(() => {
+    const data = JSON.parse(localStorage.getItem("workpassport-demo-v1"));
+    data.jobs[0].skills = null;
+    localStorage.setItem("workpassport-demo-v1", JSON.stringify(data));
+    return data.jobs[0].id;
+  });
+  await page.goto(base+"/opportunities/"+firstId);
+  await page.getByRole("heading",{name:"This page didn't load"}).waitFor();
+  await page.evaluate(raw => localStorage.setItem("workpassport-demo-v1", raw), original);
+  await page.getByRole("button",{name:"Try again"}).click();
+  await main.getByRole("heading",{name:"Repair workshop desks"}).waitFor();
 } finally {
   await browser.close();
 }
