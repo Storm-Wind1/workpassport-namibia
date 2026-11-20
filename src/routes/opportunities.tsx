@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useDemo } from "@/features/workpassport/context";
 import { JobCard, PageHeader, Empty, pageHead } from "@/features/workpassport/shared";
 import { categories, locations, jobTypes } from "@/features/workpassport/types";
-import { dashboardSections, matchReasons } from "@/features/workpassport/service";
+import { dashboardSections, jobMatch, matchReasons } from "@/features/workpassport/service";
 interface Filters {
   matched?: true | undefined;
   q?: string | undefined;
@@ -42,6 +42,8 @@ function Opportunities() {
       (!search.type || j.type === search.type) &&
       (!search.matched || !state.account || matchReasons(j, state.account).length > 0),
   );
+  const account = state.account;
+  if (search.matched && account) filtered.sort((a,b) => jobMatch(b, account).score - jobMatch(a, account).score);
   function set(key: Exclude<keyof Filters, "matched">, value: string) {
     navigate({ search: (prev) => ({ ...prev, [key]: value || undefined }), replace: true });
   }
@@ -103,7 +105,7 @@ function Opportunities() {
               navigate({ search: (prev) => ({ ...prev, matched }), replace: true });
             }}
           />{" "}
-          Matches my skills or location
+          Matches my work preferences
         </label>
       )}
       <p className="result-count">{filtered.length} opportunities · Demonstration listings</p>

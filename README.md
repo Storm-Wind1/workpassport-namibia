@@ -49,7 +49,7 @@ src/
 
 `workpassport-demo-v1` in localStorage stores all demo changes. Data stays on one browser and is not transmitted to other users. Demo logout clears only the current account; it is not secure authentication. To reset the demo, remove that localStorage key in the browser’s developer tools. Do not enter sensitive information. Seeded talent profile links work on other devices; personal profile links cannot transfer local data.
 
-Skills and location explain matching. Missing ratings and previous experience never reduce matching. Skills, experience, references and portfolio examples are self-reported demonstration content, not verified credentials. Portfolio entries are illustrative project descriptions rather than actual portfolio uploads.
+Workers can opt into this browser’s directory from their dashboard and withdraw their listing there. Login can switch among demo profiles on the same browser. No profile is listed by default. The four sample profiles have portable links. A locally listed profile stays on its browser. Matching ranks skill coverage and town proximity, honors the worker’s availability and optional travel radius, and checks mandatory skills when an employer requests them. Distances are approximate straight-line distances between town centres. Missing ratings and previous experience never reduce matching. Skills, experience, references and portfolio examples are self-reported demonstration content, not verified credentials. Portfolio entries are illustrative project descriptions rather than actual portfolio uploads.
 
 ## Future integration
 

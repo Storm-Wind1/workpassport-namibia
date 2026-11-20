@@ -5,8 +5,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useDemo } from "@/features/workpassport/context";
 import { goalOptions, goalLabel, type Activity } from "@/features/workpassport/types";
-import { dashboardSections, matchReasons } from "@/features/workpassport/service";
-import { workers } from "@/features/workpassport/data";
+import { dashboardSections, jobMatch, directoryWorkers } from "@/features/workpassport/service";
 import { JobCard, WorkerCard, Empty, PageHeader, pageHead } from "@/features/workpassport/shared";
 export const Route = createFileRoute("/dashboard")({
   head: () =>
@@ -37,11 +36,15 @@ function Dashboard() {
         </Empty>
       </main>
     );
+  const workers = directoryWorkers(state);
+  function setPreferences(values: Pick<Partial<NonNullable<typeof a>>, "listed" | "available" | "radiusKm">) {
+    update(s => ({ ...s, account: s.account ? { ...s.account, ...values } : null }));
+  }
   const sections = dashboardSections(a.activities);
   const recommended = state.jobs
-    .map((j) => ({ j, reasons: matchReasons(j, a) }))
+    .map((j) => ({ j, ...jobMatch(j, a) }))
     .filter((x) => x.reasons.length > 0)
-    .sort((x, y) => y.reasons.length - x.reasons.length)
+    .sort((x, y) => y.score - x.score)
     .slice(0, 3);
   const apps = state.applications.filter((x) => x.accountId === a.id);
   const myJobs = state.jobs.filter((x) => x.owner === a.id);
@@ -172,6 +175,24 @@ function Dashboard() {
               <Button type="submit">Save skills</Button>
             </form>
           )}
+          <fieldset className="form-group my-5">
+            <legend className="form-label">Directory and matching preferences</legend>
+            <label className="choice-label">
+              <input type="checkbox" checked={a.listed === true} onChange={e => setPreferences({ listed: e.target.checked })} />
+              List my profile in this browser’s worker directory
+            </label>
+            <p className="hint">Other demo profiles on this browser can find your name, town, skills and availability. Clear this box to remove your listing.</p>
+            <label className="choice-label">
+              <input type="checkbox" checked={a.available !== false} onChange={e => setPreferences({ available: e.target.checked })} />
+              Available for work
+            </label>
+            <label className="form-label" htmlFor="radius">Preferred distance from my town</label>
+            <select id="radius" className="form-input" value={a.radiusKm ?? ""} onChange={e => setPreferences({ radiusKm: e.target.value ? Number(e.target.value) : undefined })}>
+              <option value="">Any distance</option>
+              {[25, 50, 100, 250, 500].map(km => <option key={km} value={km}>{km} km</option>)}
+            </select>
+            <p className="hint">Distance is estimated between town centres. Mark yourself unavailable to pause recommendations.</p>
+          </fieldset>
           <Button asChild variant="link" className="mt-3 px-0">
             <Link to="/passport/$id" params={{ id: a.id }}>
               View my WorkPassport <ArrowUpRight />
@@ -222,7 +243,7 @@ function Dashboard() {
         <section className="dashboard-section">
           <h2>Recommended for you</h2>
           <p className="hint mb-5">
-            Based on your skills and location. Previous ratings are never required.
+            Matches consider skill coverage, required skills, availability and your preferred distance.
           </p>
           {recommended.length ? (
             <div className="jobs-grid">
@@ -374,7 +395,7 @@ function Dashboard() {
           <section className="dashboard-section">
             <h2>Potential workers</h2>
             <div className="talent-grid">
-              {workers.slice(0, 2).map((w) => (
+              {workers.filter(w => w.id !== a.id && w.available).slice(0, 2).map((w) => (
                 <WorkerCard worker={w} key={w.id} />
               ))}
             </div>

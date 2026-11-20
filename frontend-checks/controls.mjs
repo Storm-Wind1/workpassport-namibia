@@ -49,7 +49,12 @@ try {
   await button("Edit skills").click();
   await main.getByLabel("Edit your skills").fill("React, Carpentry");
   await button("Save skills").click();
+  await main.getByLabel("List my profile in this browser’s worker directory").check();
+  await main.getByLabel("Preferred distance from my town").selectOption("50");
+  await main.getByLabel("Available for work",{exact:true}).uncheck();
+  await main.getByLabel("Available for work",{exact:true}).check();
   await link("View my WorkPassport").click();
+  await page.waitForURL("**/passport/*");
   await main.getByText("Carpentry",{exact:true}).waitFor();
   assert.equal(await button("Share WorkPassport").count(),0);
   await link("Dashboard").click();
@@ -63,10 +68,10 @@ try {
     await page.waitForFunction(key=>new URL(location.href).searchParams.has(key),label);
     await button("Clear filters").click();
   }
-  await main.getByLabel("Matches my skills or location").check();
+  await main.getByLabel("Matches my work preferences").check();
   await page.reload();
-  await main.getByLabel("Matches my skills or location").waitFor();
-  assert.equal(await main.getByLabel("Matches my skills or location").isChecked(),true);
+  await main.getByLabel("Matches my work preferences").waitFor();
+  assert.equal(await main.getByLabel("Matches my work preferences").isChecked(),true);
   await button("Clear filters").click();
   await main.locator(".job-card .job-title").first().click();
   await main.getByLabel("Tell us about yourself").fill("I am available to help with this opportunity.");
@@ -89,6 +94,7 @@ try {
   await main.getByLabel("Search workers").fill("");
   await main.getByLabel("Worker location").selectOption({index:1});
   await main.getByLabel("Worker location").selectOption("");
+  await main.getByLabel("Search workers").fill("Anna");
   await link("View passport").click();
   await button("Share WorkPassport").click();
   await button("Link copied").waitFor();
@@ -105,6 +111,7 @@ try {
   await main.getByLabel("Pay in N$ (include period)").fill("450 / day");
   await main.getByLabel("About the work").fill("Repair three workshop desks for our community.");
   await main.getByLabel("Skills (separated by commas)").fill("Carpentry");
+  await main.getByLabel("Require all listed skills for a recommended match").check();
   await button("Create demo opportunity").click();
   await main.getByText("You posted this opportunity.").waitFor();
   await page.reload();
@@ -119,6 +126,11 @@ try {
   await main.getByText("Please quote for repairing desks.").waitFor();
   assert.equal((await saved()).services.length,1);
   await page.getByRole("button",{name:"Sign out of demo"}).click();
+  await page.goto(base+"/talent");
+  await main.getByLabel("Search workers").fill("Demo Worker");
+  await link("View passport").click();
+  await main.getByRole("heading",{name:"Demo Worker"}).waitFor();
+  assert.equal(await button("Share WorkPassport").count(),0);
   await page.goto(base+"/post-job");
   await link("Create account").click();
   await page.waitForURL("**/join");

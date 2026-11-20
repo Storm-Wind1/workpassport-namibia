@@ -49,7 +49,7 @@ function JobDetail() {
           <span className="job-type">{job.category}</span>
           <h2>About the opportunity</h2>
           <p>{job.description}</p>
-          <h2>Skills that help</h2>
+          <h2>{job.requireAllSkills ? "Required skills for matching" : "Skills that help"}</h2>
           <div className="skill-tags">
             {job.skills.map((s) => (
               <span key={s}>{s}</span>

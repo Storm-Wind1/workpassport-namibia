@@ -42,7 +42,7 @@ export const faq = [
     question: "Do I need experience?",
     pattern: /experience|rating/i,
     answer:
-      "No. Your skills and location help find matches. Missing experience or ratings never reduces your matches. Skills you enter are self-declared, not verified.",
+      "No. Your skills, availability and preferred distance help find matches. You can change these on your dashboard. Missing experience or ratings never reduces your matches. Skills you enter are self-declared, not verified.",
   },
   {
     question: "What does verified mean?",
@@ -55,6 +55,11 @@ export const faq = [
     pattern: /business|trading name|company|owner|admin/i,
     answer:
       "Select Sign up, then Business. Add a trading name, town, industry and contact person. Informal businesses are welcome; a registration number is optional text, not proof. The creator is the demo workspace owner/admin. Staff delegation comes later.",
+  },
+  {
+    question: "How can people find my profile?",
+    pattern: /directory|discover|list my profile/i,
+    answer: "On your individual dashboard, select List my profile in this browser’s worker directory. Other demo users of this browser can then search for your name, town or skills. Clear the box to remove your listing. Cross-device listings need the shared service.",
   },
   {
     question: "How do I change my activities?",
