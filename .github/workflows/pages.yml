@@ -1,0 +1,61 @@
+name: Build GitHub Pages preview
+on:
+  push:
+    branches: [feature/guided-signup]
+permissions:
+  contents: read
+concurrency:
+  group: workpassport-pages
+  cancel-in-progress: true
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      pages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.13
+      - run: bun install --frozen-lockfile
+      - run: bun run vite build --config vite.pages.config.ts --mode pages
+      - name: Check static home and signup under the repository URL
+        run: |
+          mkdir -p /tmp/preview
+          ln -s "$PWD/dist-pages" /tmp/preview/workpassport-namibia
+          python3 -m http.server 8173 --directory /tmp/preview >/tmp/pages-server.log 2>&1 &
+          for i in {1..10}; do curl -fsS http://localhost:8173/workpassport-namibia/ >/dev/null && break; sleep 1; done
+          for route in home join; do
+            url=http://localhost:8173/workpassport-namibia/
+            if [[ "$route" == join ]]; then url="${url}#/join"; fi
+            google-chrome --headless --no-sandbox --disable-gpu --virtual-time-budget=10000 --dump-dom "$url" >/tmp/"$route".html
+          done
+          grep -F 'What is a WorkPassport?' /tmp/home.html
+          grep -F 'How are you joining?' /tmp/join.html
+      - name: Update built website branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if git ls-remote --exit-code --heads origin gh-pages; then
+            git fetch origin gh-pages
+            git worktree add --detach /tmp/published FETCH_HEAD
+          else
+            git worktree add --detach /tmp/published HEAD
+            git -C /tmp/published checkout --orphan pages-build
+            git -C /tmp/published rm -rfq .
+          fi
+          rsync -a --delete --exclude=.git dist-pages/ /tmp/published/
+          cd /tmp/published
+          touch .nojekyll
+          git add -A
+          if ! git diff --cached --quiet; then
+            git -c user.name=github-actions -c user.email=github-actions@users.noreply.github.com commit -m "Publish frontend from $GITHUB_SHA"
+            git push origin HEAD:gh-pages
+          fi
+          if gh api "repos/$GITHUB_REPOSITORY" --jq .has_pages | grep -qx true; then
+            gh api -X POST "repos/$GITHUB_REPOSITORY/pages/builds"
+          fi
