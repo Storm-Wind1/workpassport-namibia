@@ -1,12 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Search, Plus } from "lucide-react";
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useDemo } from "@/features/workpassport/context";
 import { JobCard, PageHeader, Empty, pageHead } from "@/features/workpassport/shared";
 import { categories, locations, jobTypes } from "@/features/workpassport/types";
 import { dashboardSections, matchReasons } from "@/features/workpassport/service";
 interface Filters {
+  matched?: true | undefined;
   q?: string | undefined;
   location?: string | undefined;
   category?: string | undefined;
@@ -14,6 +14,7 @@ interface Filters {
 }
 export const Route = createFileRoute("/opportunities")({
   validateSearch: (s: Record<string, unknown>): Filters => ({
+    matched: s["matched"] === true || s["matched"] === "true" ? true : undefined,
     q: typeof s["q"] === "string" ? s["q"] : undefined,
     location: typeof s["location"] === "string" ? s["location"] : undefined,
     category: typeof s["category"] === "string" ? s["category"] : undefined,
@@ -30,7 +31,6 @@ function Opportunities() {
   const search = Route.useSearch();
   const navigate = Route.useNavigate();
   const { state, ready } = useDemo();
-  const [matched, setMatched] = useState(false);
   const filtered = state.jobs.filter(
     (j) =>
       (!search.q ||
@@ -40,9 +40,9 @@ function Opportunities() {
       (!search.location || j.location === search.location) &&
       (!search.category || j.category === search.category) &&
       (!search.type || j.type === search.type) &&
-      (!matched || !state.account || matchReasons(j, state.account).length > 0),
+      (!search.matched || !state.account || matchReasons(j, state.account).length > 0),
   );
-  function set(key: keyof Filters, value: string) {
+  function set(key: Exclude<keyof Filters, "matched">, value: string) {
     navigate({ search: (prev) => ({ ...prev, [key]: value || undefined }), replace: true });
   }
   return (
@@ -88,17 +88,21 @@ function Opportunities() {
         ))}
         <Button
           variant="outline"
-          onClick={() => {
-            navigate({ search: {} });
-            setMatched(false);
-          }}
+          onClick={() => navigate({ search: {} })}
         >
           Clear filters
         </Button>
       </div>
       {state.account && (
         <label className="flex items-center gap-2 text-sm mb-5">
-          <input type="checkbox" checked={matched} onChange={(e) => setMatched(e.target.checked)} />{" "}
+          <input
+            type="checkbox"
+            checked={Boolean(search.matched)}
+            onChange={(e) => {
+              const matched = e.target.checked || undefined;
+              navigate({ search: (prev) => ({ ...prev, matched }), replace: true });
+            }}
+          />{" "}
           Matches my skills or location
         </label>
       )}
