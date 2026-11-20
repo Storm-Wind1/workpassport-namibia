@@ -22,4 +22,5 @@ jobs:
             if curl -fsS http://127.0.0.1:5173 >/dev/null; then break; fi
             sleep 1
           done
+          node frontend-checks/controls.mjs || { cat /tmp/workpassport-vite.log; exit 1; }
           node frontend-checks/signup.mjs || { cat /tmp/workpassport-vite.log; exit 1; }
