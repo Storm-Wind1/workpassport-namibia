@@ -24,6 +24,9 @@ export function Header() {
             aria-label="Main navigation"
             onClick={() => setOpen(false)}
           >
+            {import.meta.env.VITE_MARKETPLACE_URL && (
+              <a href={import.meta.env.VITE_MARKETPLACE_URL}>Shared marketplace</a>
+            )}
             {a ? (
               <>
                 <Link to="/dashboard">Dashboard</Link>
