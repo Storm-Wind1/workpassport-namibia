@@ -40,3 +40,20 @@ def test_two_account_marketplace():
     worker.post("/api/logout").raise_for_status()
     assert worker.get("/api/me",headers={"Cookie":f"wp_session={cookie}"}).status_code == 401
     assert worker.post("/api/login",json=credentials).status_code == 200
+
+
+def test_worker_services():
+    buyer, worker = client(), client()
+    register(buyer)
+    register(worker)
+    profile = {"headline":"Worker","location":"Rundu","bio":"Repair work","published":True}
+    worker_id = worker.put("/api/profile",json=profile).json()["user_id"]
+    item = worker.post("/api/history",json={"title":"Repairs","description":"Workshop doors","request_review":True}).json()["id"]
+    assert worker.put(f"/api/history/{item}/review",json={"status":"confirmed"}).status_code == 403
+    assert buyer.get(f"/api/workers/{worker_id}/history").json()[0]["reference_confirmed"] is False
+    quote = buyer.post("/api/quotations",json={"worker_id":worker_id,"description":"Fix door"}).json()["id"]
+    assert buyer.put(f"/api/quotations/{quote}/offer",json={"amount":"250"}).status_code == 409
+    assert worker.put(f"/api/quotations/{quote}/offer",json={"amount":"250"}).status_code == 200
+    assert buyer.put(f"/api/quotations/{quote}/accept").status_code == 200
+    assert buyer.put(f"/api/quotations/{quote}/accept").status_code == 409
+    assert "NAD" in worker.post("/api/help",json={"question":"How do quotations work?"}).json()["answer"]
