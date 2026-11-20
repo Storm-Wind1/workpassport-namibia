@@ -10,6 +10,7 @@ import {
   registrationError,
   type Registration,
 } from "@/features/workpassport/onboarding";
+import { useHelp } from "@/features/workpassport/help";
 export const Route = createFileRoute("/join")({
   head: () =>
     pageHead(
@@ -21,6 +22,8 @@ export const Route = createFileRoute("/join")({
 function Join() {
   const { state, update } = useDemo();
   const navigate = useNavigate();
+  const openHelp = useHelp();
+  const drafts = useRef<Partial<Record<Registration["kind"], Registration>>>({});
   const [step, setStep] = useState(1);
   const [error, setError] = useState("");
   const heading = useRef<HTMLHeadingElement>(null);
@@ -28,14 +31,14 @@ function Join() {
     kind: "Individual",
     name: "",
     email: "",
-    location: "Windhoek",
+    location: "",
     skills: "",
     phone: "",
     industry: "",
     contactName: "",
     businessStatus: "informal",
     registrationNumber: "",
-    activities: ["Find employment"],
+    activities: [],
     consent: false,
   });
   useEffect(() => {
@@ -43,6 +46,22 @@ function Join() {
   }, [step]);
   const change = (key: keyof Registration, value: unknown) =>
     setD((prev) => ({ ...prev, [key]: value }));
+  function chooseKind(kind: Registration["kind"]) {
+    drafts.current[d.kind] = d;
+    setD(drafts.current[kind] ?? {
+      kind, name: "", email: "", location: "", skills: "", phone: "",
+      industry: "", contactName: "", businessStatus: "informal", registrationNumber: "",
+      activities: [], consent: false,
+    });
+    setError("");
+  }
+  const business = d.kind === "Business";
+  const instructions = [
+    "Choose Individual for yourself, or Business to represent a business. Then select Next.",
+    business ? "Use a made-up trading name and the name of the person who runs the business. Informal businesses can join too." : "Use a made-up name, email and town. You can leave skills blank and add them later.",
+    business ? "Choose the work your business wants to do. You already manage its workspace as the owner." : "Choose what you want to do first. You can look for work, offer a service, or hire help.",
+    "Check the details below. Use Back to change anything before creating your demo profile.",
+  ];
   function advance() {
     const err = registrationError(step, d);
     setError(err ?? "");
@@ -90,13 +109,16 @@ function Join() {
           {
             [
               "How are you joining?",
-              "A little about you",
-              "What would you like to do?",
-              "Ready for your next chapter?",
+              business ? "Tell us about your business" : "Tell us about yourself",
+              business ? "What does your business want to do?" : "What would you like to do?",
+              business ? "Review your business profile" : "Review your individual profile",
             ][step - 1]
           }
         </h1>
-        <p>Use made-up demo details. No real identity documents or private information.</p>
+        <p>{instructions[step - 1]}</p>
+        <Button type="button" variant="link" className="px-0" onClick={() => openHelp(instructions[step - 1])}>
+          Help with this step
+        </Button>
         {state.account && step === 1 && (
           <div className="notice">
             You already have a demo profile.{" "}
@@ -122,14 +144,7 @@ function Join() {
                     name="kind"
                     aria-label={kind}
                     checked={d.kind === kind}
-                    onChange={() => {
-                      setD((p) => ({
-                        ...p,
-                        kind,
-                        activities: [kind === "Individual" ? "Find employment" : "Hire workers"],
-                      }));
-                      setError("");
-                    }}
+                    onChange={() => chooseKind(kind)}
                   />
                   {kind === "Individual" ? <UserRound size={28} /> : <Building2 size={28} />}
                   <span>
@@ -189,8 +204,7 @@ function Join() {
                     <>
                       {field("Registration number (optional demo text only)", "registrationNumber")}
                       <p className="hint">
-                        A number is not proof of registration. Do not enter a real document or
-                        upload anything.
+                        Use a made-up example or leave this blank. A reviewer would need to check registration separately.
                       </p>
                     </>
                   )}
@@ -211,6 +225,7 @@ function Join() {
                   value={d.location}
                   onChange={(e) => change("location", e.target.value)}
                 >
+                  <option value="">Choose your town</option>
                   {locations.map((l) => (
                     <option key={l}>{l}</option>
                   ))}
@@ -218,7 +233,7 @@ function Join() {
               </div>
               {d.kind === "Individual" && (
                 <>
-                  {field("Phone (optional, demo text — not saved)", "phone", false, "tel")}
+                  
                   {field("Simple skills (optional, separated by commas)", "skills")}
                   <p className="hint">
                     Skills are self-declared, not verified. No experience or ratings needed to
@@ -231,7 +246,7 @@ function Join() {
           {step === 3 && (
             <>
               <p className="mb-5 text-muted-foreground">
-                Choose one or more. You can add or change goals later.
+                Pick at least one. You can change these choices later on your dashboard.
               </p>
               <div className="choice-grid">
                 {goalOptions(d.kind).map((g) => (
@@ -279,7 +294,7 @@ function Join() {
                 ))}
               </dl>
               <div className="notice">
-                Verification pending: identity,{" "}
+                Review status: Not submitted. Your identity,{" "}
                 {d.kind === "Business"
                   ? "business details and representative"
                   : "skills, experience and references"}{" "}
