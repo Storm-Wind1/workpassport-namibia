@@ -1,3 +1,7 @@
+from decimal import Decimal
+import json
+from urllib.request import Request as HttpRequest, urlopen
+from urllib.error import URLError
 import hashlib
 import os
 import secrets
@@ -233,3 +237,143 @@ def my_organizations(user=Depends(actor), conn=Depends(database)):
 def my_profile(user=Depends(actor), conn=Depends(database)):
     return conn.execute("SELECT headline,location,bio,published FROM worker_profiles WHERE user_id=%s",
                         (user["id"],)).fetchone()
+
+
+class History(BaseModel):
+    request_review: bool = False
+    title: Label
+    description: BodyText
+
+
+@app.post("/api/history", status_code=201)
+def add_history(data: History, user=Depends(actor), conn=Depends(database)):
+    row = conn.execute("""INSERT INTO work_history(worker_id,title,description)
+                       SELECT user_id,%s,%s FROM worker_profiles WHERE user_id=%s RETURNING id""",
+                       (data.title,data.description,user["id"])).fetchone()
+    if not row:
+        raise HTTPException(409, "Save your worker profile first.")
+    if data.request_review:
+        conn.execute("INSERT INTO reference_reviews(history_id) VALUES (%s)", (row["id"],))
+    return row
+
+
+@app.get("/api/workers/{worker}/history")
+def history(worker: UUID, conn=Depends(database)):
+    return conn.execute("""SELECT h.id,h.title,h.description,
+                        coalesce(r.status='confirmed',false) AS reference_confirmed
+                        FROM work_history h JOIN worker_profiles p ON p.user_id=h.worker_id
+                        LEFT JOIN reference_reviews r ON r.history_id=h.id
+                        WHERE p.published AND p.user_id=%s ORDER BY h.created_at DESC""",(worker,)).fetchall()
+
+
+@app.post("/api/history/{item}/review", status_code=201)
+def request_review(item: UUID, user=Depends(actor), conn=Depends(database)):
+    row = conn.execute("""INSERT INTO reference_reviews(history_id) SELECT id FROM work_history
+                       WHERE id=%s AND worker_id=%s ON CONFLICT DO NOTHING RETURNING status""",
+                       (item,user["id"])).fetchone()
+    if not row:
+        raise HTTPException(409, "No new review is available for this entry.")
+    return row
+
+
+class Decision(BaseModel):
+    status: Literal["confirmed","declined"]
+
+
+@app.put("/api/history/{item}/review")
+def review(item: UUID, data: Decision, user=Depends(actor), conn=Depends(database)):
+    if not conn.execute("SELECT 1 FROM reference_reviewers WHERE user_id=%s FOR SHARE",(user["id"],)).fetchone():
+        raise HTTPException(403, "An independent reviewer is required.")
+    row = conn.execute("""UPDATE reference_reviews r SET status=%s,reviewed_at=now(),reviewer_id=%s
+                       FROM work_history h WHERE h.id=r.history_id AND r.history_id=%s
+                       AND h.worker_id<>%s AND r.status='pending' RETURNING r.status""",
+                       (data.status,user["id"],item,user["id"])).fetchone()
+    if not row:
+        raise HTTPException(409, "This entry cannot be reviewed by this account.")
+    return row
+
+
+
+Money = Annotated[Decimal, Field(ge=0, max_digits=14, decimal_places=2)]
+
+
+class QuoteRequest(BaseModel):
+    worker_id: UUID
+    description: BodyText
+    budget: Money | None = None
+
+
+@app.post("/api/quotations", status_code=201)
+def request_quote(data: QuoteRequest, user=Depends(actor), conn=Depends(database)):
+    row = conn.execute("""INSERT INTO quotations(requester_id,worker_id,description,budget_nad)
+                       SELECT %s,user_id,%s,%s FROM worker_profiles WHERE published AND user_id=%s
+                       AND user_id<>%s RETURNING id""",
+                       (user["id"],data.description,data.budget,data.worker_id,user["id"])).fetchone()
+    if not row:
+        raise HTTPException(409, "Choose another published worker.")
+    return row
+
+
+@app.get("/api/quotations")
+def quotes(user=Depends(actor), conn=Depends(database)):
+    return conn.execute("""SELECT id,description,status,budget_nad,offered_nad,worker_id,requester_id
+                        FROM quotations WHERE requester_id=%s OR worker_id=%s ORDER BY created_at DESC""",
+                        (user["id"],user["id"])).fetchall()
+
+
+class Offer(BaseModel):
+    amount: Money
+
+
+@app.put("/api/quotations/{quote}/offer")
+def offer(quote: UUID, data: Offer, user=Depends(actor), conn=Depends(database)):
+    row = conn.execute("""UPDATE quotations SET offered_nad=%s,status='offered' WHERE id=%s
+                       AND worker_id=%s AND status='requested' RETURNING status""",
+                       (data.amount,quote,user["id"])).fetchone()
+    if not row:
+        raise HTTPException(409, "This quotation cannot receive an offer.")
+    return row
+
+
+@app.put("/api/quotations/{quote}/accept")
+def accept_quote(quote: UUID, user=Depends(actor), conn=Depends(database)):
+    row = conn.execute("""UPDATE quotations SET status='accepted' WHERE id=%s AND requester_id=%s
+                       AND status='offered' RETURNING status""",(quote,user["id"])).fetchone()
+    if not row:
+        raise HTTPException(409, "This offer cannot be accepted.")
+    return row
+
+
+HELP = {
+    "jobs": "Open jobs lists shared opportunities. Sign in to send the employer an application.",
+    "profile": "Save your headline, town and bio. Tick the publication box to appear in the worker directory.",
+    "reference": "Add a work-history entry and request review. Only an independent authorized reviewer can confirm that entry.",
+    "quotation": "Choose a published worker to request a quote. The worker sets a price in NAD and the requester can accept it.",
+    "workspace": "Create a business workspace to post as that organization. The owner manages workspace roles.",
+}
+
+
+class HelpQuestion(BaseModel):
+    question: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1,max_length=300)]
+
+
+@app.post("/api/help")
+def help_answer(data: HelpQuestion, user=Depends(actor)):
+    choices = list(HELP)
+    topic = next((key for key in choices if key in data.question.lower()), None)
+    # Optional locally hosted Ollama classifier. Only approved help text reaches the browser.
+    model = os.getenv("WORKPASSPORT_HELP_MODEL")
+    if not topic and model:
+        payload = {"model": model, "stream": False, "format": "json",
+                   "prompt": "Classify this question into one topic: "+", ".join(choices)+
+                             ". For anything else use unknown. Return JSON with a topic field. Question: "+data.question}
+        req = HttpRequest("http://127.0.0.1:11434/api/generate", data=json.dumps(payload).encode(),
+                          headers={"Content-Type":"application/json"})
+        try:
+            with urlopen(req, timeout=5) as result:
+                selected = json.loads(json.loads(result.read(65536))["response"])["topic"]
+                if isinstance(selected,str) and selected in HELP:
+                    topic = selected
+        except (URLError, TimeoutError, ValueError, KeyError, TypeError):
+            pass
+    return {"answer": HELP.get(topic, "Ask about jobs, your profile, references, quotations or your workspace.")}
