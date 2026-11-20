@@ -1,0 +1,25 @@
+name: Database
+on:
+  pull_request:
+    paths: ['backend/migrations/**', '.github/workflows/database.yml']
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: ci-only
+        ports: ['5432:5432']
+        options: --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply migrations to an empty database
+        env:
+          PGPASSWORD: ci-only
+        run: |
+          for migration in backend/migrations/*.sql; do
+            psql -X -v ON_ERROR_STOP=1 -h localhost -U postgres -f "$migration" || exit 1
+          done
