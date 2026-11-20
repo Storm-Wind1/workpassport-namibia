@@ -39,4 +39,4 @@ jobs:
             if curl -fsS http://127.0.0.1:8000/api/jobs >/dev/null; then break; fi
             sleep 1
           done
-          node backend/browser/check.mjs
+          node backend/browser/check.mjs || { cat /tmp/wp-api.log; exit 1; }
