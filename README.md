@@ -13,7 +13,7 @@ bun run test
 bun run build
 ```
 
-The app uses React 19, TypeScript, Vite, Tailwind CSS v4, shadcn/ui and TanStack Start/Router. TanStack Router is the routing system provided by the Lovable template (not React Router). Keep its Vite plugin and generated route tree intact. `bun run dev` prints the local URL.
+The app uses React 19, TypeScript, Vite, Tailwind CSS v4, shadcn/ui and TanStack Start/Router. TanStack Router is the routing system used by this project. Keep its Vite plugin and generated route tree intact. `bun run dev` prints the local URL.
 
 ## Source structure
 
@@ -57,7 +57,7 @@ Replace `demoRepository` with an asynchronous FastAPI client, introduce real ide
 
 ## Team workflow
 
-Connect this project to GitHub in Lovable to synchronize its source. Develop in branches and review pull requests; never edit `src/routeTree.gen.ts` by hand. Commit `bun.lock` alongside dependency changes. Keep domain behavior tests next to `service.ts` and page metadata in each content route.
+Use GitHub for team development. Start each task from the latest `develop` branch (`git switch develop` then `git pull --ff-only`). Create a short-lived branch with `git switch -c feature/<task>` and open a pull request into `develop`. Promote tested changes from `develop` to `main` for release. Run `bun run test` and `bun run build` before merging. Keep generated files intact and never edit `src/routeTree.gen.ts` by hand. Commit `bun.lock` alongside dependency changes. Keep domain behavior tests next to `service.ts` and page metadata in each content route.
 
 ## Guided registration and trust boundaries
 
