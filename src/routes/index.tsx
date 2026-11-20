@@ -18,7 +18,7 @@ export const Route = createFileRoute("/")({
   component: Home,
 });
 function Home() {
-  const { state } = useDemo();
+  const { state, ready } = useDemo();
   const openHelp = useHelp();
 
   return (
@@ -73,7 +73,7 @@ function Home() {
             <div><h3>Experience comes in many forms</h3><p>Built a gate, designed a poster or helped in a family shop? Those are examples you can put on your profile.</p></div>
             <div><h3>A place for small businesses</h3><p>A one-person workshop or a growing company can introduce its business and the people it needs.</p></div>
             <div><h3>Help from the first step</h3><p>You can ask a question before you sign up. The guide is still there when you fill in your profile.</p>
-              <Button variant="link" className="px-0" onClick={() => openHelp()}>Ask WorkPassport <ArrowRight /></Button>
+              <Button disabled={!ready} variant="link" className="px-0" onClick={() => openHelp()}>Ask WorkPassport <ArrowRight /></Button>
             </div>
           </div>
         </div>
