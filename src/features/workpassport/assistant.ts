@@ -151,4 +151,5 @@ async function matchWithBrowserAI(question: string): Promise<string | undefined>
   } finally {
     session?.destroy();
   }
+  return undefined;
 }

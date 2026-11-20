@@ -10,7 +10,7 @@ it("matches an unfamiliar phrase to approved guidance using an available browser
     create: async () => ({ prompt: async () => "0", destroy }),
   });
   const reply = await localAssistant.ask({ question: "Could you give me the elevator pitch?", path: "/" });
-  expect(reply).toEqual({ answer: faq[0].answer, source: "on-device-ai" });
+  expect(reply).toEqual({ answer: faq[0]!.answer, source: "on-device-ai" });
   expect(destroy).toHaveBeenCalledOnce();
 });
 
