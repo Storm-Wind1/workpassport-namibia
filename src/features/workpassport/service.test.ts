@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { matchReasons, dashboardSections, demoRepository, initialState } from "./service";
+import type { Account } from "./types";
+import { directoryWorkers, rememberProfiles, jobMatch, matchReasons, dashboardSections, demoRepository, initialState } from "./service";
 import { jobs, workers } from "./data";
 describe("WorkPassport rules", () => {
   const job = jobs.find((j) => j.id === "frontend-developer");
@@ -53,4 +54,30 @@ describe("WorkPassport rules", () => {
     expect(demoRepository.load().quotes[0]?.budget).toBe("4500");
     demoRepository.reset();
   });
+});
+
+describe("work preferences", () => {
+  const job = { ...jobs[0]!, skills:["React","Design"], location:"Walvis Bay" };
+  const profile = { skills:["React"], location:"Swakopmund", radiusKm:50 };
+  it("checks town distance, availability and mandatory skill coverage", () => {
+    expect(matchReasons(job, profile).join(" ")).toContain("31 km");
+    expect(matchReasons(job, { ...profile, radiusKm:25 })).toEqual([]);
+    expect(matchReasons(job, { ...profile, available:false })).toEqual([]);
+    expect(matchReasons({ ...job, requireAllSkills:true }, profile)).toEqual([]);
+  });
+  it("ranks a stronger match ahead of a partial skill match", () => {
+    expect(jobMatch(job,{ ...profile, skills:["React","Design"] }).score).toBeGreaterThan(jobMatch(job,profile).score);
+  });
+});
+
+it("lists only consenting individuals and preserves another worker when switching profiles", () => {
+  const first: Account = { id:"one",name:"Demo One",email:"one@example.test",activities:["Find employment"],kind:"Individual",location:"Rundu",skills:[],listed:true };
+  const second: Account = { ...first,id:"two",name:"Demo Two",listed:false };
+  const state = { ...initialState(), profiles:[first], account:second };
+  const profiles = rememberProfiles(state);
+  const directory = directoryWorkers({ ...state,profiles });
+  expect(directory.find(worker=>worker.id==="one")).not.toHaveProperty("email");
+  expect(directory.some(worker=>worker.id==="one")).toBe(true);
+  expect(directory.some(worker=>worker.id==="two")).toBe(false);
+  expect(directoryWorkers({ ...state,profiles:rememberProfiles({ ...state,account:{...first,listed:false} }) }).some(worker=>worker.id==="one")).toBe(false);
 });

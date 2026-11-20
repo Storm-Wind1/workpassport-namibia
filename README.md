@@ -13,7 +13,7 @@ bun run test
 bun run build
 ```
 
-The app uses React 19, TypeScript, Vite, Tailwind CSS v4, shadcn/ui and TanStack Start/Router. TanStack Router is the routing system provided by the Lovable template (not React Router). Keep its Vite plugin and generated route tree intact. `bun run dev` prints the local URL.
+The app uses React 19, TypeScript, Vite, Tailwind CSS v4, shadcn/ui and TanStack Start/Router. TanStack Router is the routing system used by this project. Keep its Vite plugin and generated route tree intact. `bun run dev` prints the local URL.
 
 ## Source structure
 
@@ -49,7 +49,7 @@ src/
 
 `workpassport-demo-v1` in localStorage stores all demo changes. Data stays on one browser and is not transmitted to other users. Demo logout clears only the current account; it is not secure authentication. To reset the demo, remove that localStorage key in the browser’s developer tools. Do not enter sensitive information. Seeded talent profile links work on other devices; personal profile links cannot transfer local data.
 
-Skills and location explain matching. Missing ratings and previous experience never reduce matching. Skills, experience, references and portfolio examples are self-reported demonstration content, not verified credentials. Portfolio entries are illustrative project descriptions rather than actual portfolio uploads.
+Workers can opt into this browser’s directory from their dashboard and withdraw their listing there. Login can switch among demo profiles on the same browser. No profile is listed by default. The four sample profiles have portable links. A locally listed profile stays on its browser. Matching ranks skill coverage and town proximity, honors the worker’s availability and optional travel radius, and checks mandatory skills when an employer requests them. Distances are approximate straight-line distances between town centres. Missing ratings and previous experience never reduce matching. Skills, experience, references and portfolio examples are self-reported demonstration content, not verified credentials. Portfolio entries are illustrative project descriptions rather than actual portfolio uploads.
 
 ## Future integration
 
@@ -57,11 +57,11 @@ Replace `demoRepository` with an asynchronous FastAPI client, introduce real ide
 
 ## Team workflow
 
-Connect this project to GitHub in Lovable to synchronize its source. Develop in branches and review pull requests; never edit `src/routeTree.gen.ts` by hand. Commit `bun.lock` alongside dependency changes. Keep domain behavior tests next to `service.ts` and page metadata in each content route.
+Use GitHub for team development. Start each task from the latest `develop` branch (`git switch develop` then `git pull --ff-only`). Create a short-lived branch with `git switch -c feature/<task>` and open a pull request into `develop`. Promote tested changes from `develop` to `main` for release. Run `bun run test` and `bun run build` before merging. Keep generated files intact and never edit `src/routeTree.gen.ts` by hand. Commit `bun.lock` alongside dependency changes. Keep domain behavior tests next to `service.ts` and page metadata in each content route.
 
 ## Guided registration and trust boundaries
 
-The public homepage explains the platform before registration. `/join` has four stages: account type, branched demo details, goals and review with demo consent. Individuals can add hiring later. Businesses have trading details (informal or registered, always unverified); their creator is the workspace owner/admin, not a signup goal. Optional phone text is ephemeral and never persisted. Registration numbers are optional demo text, never documents. Do not use real private details.
+The public homepage explains the platform before registration. `/join` has four stages: account type, branched demo details, goals and review with demo consent. Individuals can add hiring later. Businesses have trading details (informal or registered, always unverified); their creator is the workspace owner/admin, not a signup goal. Each profile type has a separate in-memory registration draft. The user chooses goals explicitly. Registration numbers are optional demo text, never documents. Do not use real private details.
 
 `/login` resumes a saved demo on this device; it is explicitly not authentication. Logout clears the active profile but retains `savedAccount`. The existing `workpassport-demo-v1` key is migrated in memory: legacy business management becomes a hiring goal and business ownership is normalized. IDs, jobs, applications, quotations and service records are preserved. Legacy stored records are not deleted or rewritten until a user explicitly saves an action.
 
@@ -73,7 +73,7 @@ Add server-enforced authentication, ownership, RBAC and audit logging before acc
 
 ### Guided Help (demo)
 
-`assistant.ts` defines `AssistantService`, typed requests/responses, local FAQ matching and page hints. `help.tsx` provides the global keyboard-accessible dialog, suggested questions and text input. It makes no remote calls and saves no conversation to localStorage. Live human support is not connected.
+`assistant.ts` defines `AssistantService`, typed requests/responses, local FAQ matching and page hints. `help.tsx` provides the global keyboard-accessible dialog, suggested questions and text input. It makes no remote calls and saves no conversation to localStorage. For unfamiliar questions the frontend can use an already-available browser LanguageModel to select an approved FAQ answer. Without a compatible model it uses the written guide. Step-specific help is available throughout registration. Live human support is not connected.
 
 A future AI adapter must call an authenticated, rate-limited server proxy; never expose credentials in the browser. Ground answers in approved help content, cite sources, reject verification and eligibility decisions, minimize personal data, use uncertainty/fallbacks to mitigate hallucinations, and offer explicit human handoff when a real support channel exists. AI cannot create verified badges or authorize workspace access.
 

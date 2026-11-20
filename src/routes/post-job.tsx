@@ -26,6 +26,7 @@ function PostJob() {
   const [type, setType] = useState("Permanent");
   const [pay, setPay] = useState("");
   const [description, setDescription] = useState("");
+  const [requireAllSkills, setRequireAllSkills] = useState(false);
   const [skills, setSkills] = useState("");
   const account = state.account;
   useEffect(() => {
@@ -84,6 +85,7 @@ function PostJob() {
                       .map((s) => s.trim())
                       .filter(Boolean),
                     owner: account.id,
+                    requireAllSkills,
                   },
                   ...s.jobs,
                 ],
@@ -174,6 +176,7 @@ function PostJob() {
               onChange={(e) => setSkills(e.target.value)}
             />
           </div>
+          <label className="choice-label"><input type="checkbox" checked={requireAllSkills} onChange={e => setRequireAllSkills(e.target.checked)} />Require all listed skills for a recommended match</label>
           <Button className="w-full" type="submit">
             Create demo opportunity
           </Button>

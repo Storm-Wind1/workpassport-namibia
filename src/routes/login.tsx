@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { useDemo } from "@/features/workpassport/context";
@@ -13,7 +14,9 @@ export const Route = createFileRoute("/login")({
 function Login() {
   const { state, ready, update } = useDemo();
   const navigate = useNavigate();
-  const saved = state.savedAccount ?? state.account;
+  const [selected, setSelected] = useState("");
+  const profiles = state.profiles ?? [];
+  const saved = profiles.find(a => a.id === selected) ?? state.savedAccount ?? state.account;
   return (
     <main className="container page-main">
       <div className="form-panel">
@@ -25,6 +28,13 @@ function Login() {
           <p>Checking this device…</p>
         ) : saved ? (
           <>
+            {profiles.length > 1 && (
+              <label className="form-group">Choose a demo profile on this device
+                <select className="form-input" value={saved.id} onChange={e => setSelected(e.target.value)}>
+                  {profiles.map(a => <option key={a.id} value={a.id}>{a.name} · {a.kind}</option>)}
+                </select>
+              </label>
+            )}
             <div className="notice">
               Saved demo: {saved.name} · {saved.kind}. Anyone using this browser can resume it.
             </div>

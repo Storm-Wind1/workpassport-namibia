@@ -35,6 +35,7 @@ export interface Job {
   description: string;
   skills: string[];
   owner?: string;
+  requireAllSkills?: boolean;
 }
 export interface Worker {
   id: string;
@@ -62,6 +63,9 @@ export interface Account {
   businessStatus?: "informal" | "registered";
   registrationNumber?: string;
   role?: "owner";
+  listed?: boolean;
+  available?: boolean;
+  radiusKm?: number | undefined;
 }
 export interface Application {
   id: string;
@@ -85,6 +89,7 @@ export interface Service {
 export interface DemoState {
   account: Account | null;
   savedAccount?: Account | null;
+  profiles?: Account[];
   jobs: Job[];
   applications: Application[];
   quotes: Quote[];

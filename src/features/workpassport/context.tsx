@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { toast } from "sonner";
-import { demoRepository, initialState } from "./service";
+import { demoRepository, initialState, rememberProfiles } from "./service";
 import type { DemoState } from "./types";
 interface Context {
   state: DemoState;
@@ -18,11 +18,18 @@ export function DemoProvider({ children }: { children: ReactNode }) {
       toast.error("Saved demo data could not be loaded. A fresh demo is ready.");
     }
     setReady(true);
+    const sync = (event: StorageEvent) => {
+      if (event.key !== "workpassport-demo-v1" && event.key !== null) return;
+      try { setState(demoRepository.load()); } catch { toast.error("Could not read the updated demo."); }
+    };
+    window.addEventListener("storage", sync);
+    return () => window.removeEventListener("storage", sync);
   }, []);
   function update(fn: (s: DemoState) => DemoState) {
     const changed = fn(state);
     const next = {
       ...changed,
+      profiles: rememberProfiles(changed),
       savedAccount: changed.account ?? changed.savedAccount ?? state.savedAccount ?? state.account,
     };
     try {
