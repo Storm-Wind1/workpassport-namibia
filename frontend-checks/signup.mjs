@@ -5,6 +5,8 @@ const browser = await chromium.launch();
 try {
   for (const business of [false, true]) {
     const page = await browser.newPage({ viewport: { width: business ? 390 : 1100, height: 850 } });
+    page.on("pageerror", error => console.log("Browser error", error.message));
+    page.on("console", msg => { if (msg.type() === "error") console.log(msg.text()); });
     await page.goto("http://127.0.0.1:5173");
     const main = page.getByRole("main");
     await main.getByRole("heading", { name: "What is a WorkPassport?" }).waitFor();
