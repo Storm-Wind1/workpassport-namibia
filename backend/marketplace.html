@@ -30,6 +30,11 @@
 <label>About your work<textarea name="bio" required></textarea></label><label><input type="checkbox" name="published"> Show in public worker directory</label>
 <button>Save profile</button></form></section>
 <section data-private hidden><h2>Applications</h2><div id="applications"></div></section>
+<section data-private hidden><h2>Work history</h2><form id="history">
+<label>Role or project<input name="title" required></label><label>Work completed<textarea name="description" required></textarea></label>
+<label><input type="checkbox" name="review"> Request an independent reference review</label><button>Save work history</button></form></section>
+<section data-private hidden><h2>My quotations</h2><div id="quotes"></div></section>
+<section data-private hidden><h2>Marketplace help</h2><form id="help"><label>Question<input name="question" maxlength="300" required></label><button>Ask</button></form><p id="answer" aria-live="polite"></p></section>
 </main>
 <script type="module">
 const el = id => document.getElementById(id);
@@ -70,8 +75,40 @@ async function refresh() {
       submit(form,data=>api("jobs/"+job.id+"/applications","POST",data),"Application submitted.");
     }
   }
-  for(const worker of workers) card(el("workers"),worker.display_name,[worker.headline+" · "+worker.location,worker.bio]);
+  for(const worker of workers) {
+    const article=card(el("workers"),worker.display_name,[worker.headline+" · "+worker.location,worker.bio]);
+    const history=document.createElement("button"); history.textContent="View work history"; article.append(history);
+    history.onclick=async()=>{
+      try {
+        const entries=await api("workers/"+worker.user_id+"/history");
+        if(!entries.length) report("No work history listed.");
+        for(const entry of entries) card(article,entry.title,[entry.description,entry.reference_confirmed?"Reference confirmed":"Self-reported"]);
+        history.disabled=true;
+      }catch(error){report(error.message);}
+    };
+    if(user && user.id!==worker.user_id) actionForm(article,"Describe the work","Request quotation",
+      value=>api("quotations","POST",{worker_id:worker.user_id,description:value}));
+  }
+  const quotations=user?await api("quotations"):[];
+  el("quotes").textContent=quotations.length?"":"No quotations yet.";
+  for(const q of quotations){
+    const article=card(el("quotes"),q.description,[q.status, q.offered_nad==null?"Awaiting price":"N$ "+q.offered_nad]);
+    if(q.status==="requested" && user.id===q.worker_id)
+      actionForm(article,"Offer in NAD","Send offer",value=>api("quotations/"+q.id+"/offer","PUT",{amount:value}),"number");
+    if(q.status==="offered" && user.id===q.requester_id){
+      const form=document.createElement("form"),button=document.createElement("button");
+      button.textContent="Accept offer";form.append(button);article.append(form);
+      submit(form,()=>api("quotations/"+q.id+"/accept","PUT"),"Offer accepted.");
+    }
+  }
   for(const item of applications) card(el("applications"),item.title,[item.applicant+" · "+item.status,item.message]);
+}
+function actionForm(container,labelText,buttonText,action,type="text"){
+  const form=document.createElement("form"),label=document.createElement("label"),input=document.createElement("input"),button=document.createElement("button");
+  label.textContent=labelText;input.type=type;input.name="value";input.required=true;
+  if(type==="number"){input.min="0";input.step="0.01";}
+  label.append(input);button.textContent=buttonText;form.append(label,button);container.append(form);
+  submit(form,data=>action(data.value),"Quotation updated.");
 }
 function submit(form,action,success){
   form.onsubmit=async event=>{
@@ -84,6 +121,8 @@ submit(el("account"),(data,button)=>api(button.value,"POST",data),"Signed in.");
 submit(el("post"),data=>api("jobs","POST",{...data,organization_id:data.organization_id||null}),"Job published.");
 submit(el("profile"),data=>api("profile","PUT",{...data,published:data.published==="on"}),"Profile saved.");
 submit(el("organization"),data=>api("organizations","POST",data),"Workspace created.");
+submit(el("history"),data=>api("history","POST",{title:data.title,description:data.description,request_review:data.review==="on"}),"Work history saved.");
+submit(el("help"),async data=>{el("answer").textContent=(await api("help","POST",data)).answer;},"Help updated.");
 el("logout").onclick=async()=>{try{await api("logout","POST");await refresh();report("Signed out.");}catch(error){report(error.message);}};
 refresh().catch(error=>report(error.message));
 </script>

@@ -4,7 +4,7 @@ permissions:
   contents: read
 jobs:
   api:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     services:
       postgres:
         image: postgres:16
@@ -25,3 +25,18 @@ jobs:
             psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f "$file" || exit 1
           done
       - run: python -m pytest -q backend
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Check the two-browser hiring flow
+        env:
+          LOCAL_HTTP: '1'
+        run: |
+          npm install --prefix backend/browser --no-save playwright@1.56.1
+          backend/browser/node_modules/.bin/playwright install --with-deps chromium
+          uvicorn backend.app:app --port 8000 > /tmp/wp-api.log 2>&1 &
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:8000/api/jobs >/dev/null; then break; fi
+            sleep 1
+          done
+          node backend/browser/check.mjs || { cat /tmp/wp-api.log; exit 1; }
