@@ -19,7 +19,7 @@ function HelpPage() {
         title="A little help for your next step"
         description="Take your time. You can learn about the platform before joining."
       />
-      <Button onClick={open} size="lg">
+      <Button onClick={() => open()} size="lg">
         Ask WorkPassport
       </Button>
       <div className="faq-list">
@@ -31,8 +31,7 @@ function HelpPage() {
         ))}
       </div>
       <div className="notice">
-        Guided Help (demo) uses local answers, not AI. Live human support and messaging are not
-        connected.
+        The guide uses WorkPassport’s written answers. When your browser has a compatible AI model ready, it can match a question to an answer on your device.
       </div>
     </main>
   );
