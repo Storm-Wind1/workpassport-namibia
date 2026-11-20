@@ -61,7 +61,7 @@ Use GitHub for team development. Start each task from the latest `develop` branc
 
 ## Guided registration and trust boundaries
 
-The public homepage explains the platform before registration. `/join` has four stages: account type, branched demo details, goals and review with demo consent. Individuals can add hiring later. Businesses have trading details (informal or registered, always unverified); their creator is the workspace owner/admin, not a signup goal. Optional phone text is ephemeral and never persisted. Registration numbers are optional demo text, never documents. Do not use real private details.
+The public homepage explains the platform before registration. `/join` has four stages: account type, branched demo details, goals and review with demo consent. Individuals can add hiring later. Businesses have trading details (informal or registered, always unverified); their creator is the workspace owner/admin, not a signup goal. Each profile type has a separate in-memory registration draft. The user chooses goals explicitly. Registration numbers are optional demo text, never documents. Do not use real private details.
 
 `/login` resumes a saved demo on this device; it is explicitly not authentication. Logout clears the active profile but retains `savedAccount`. The existing `workpassport-demo-v1` key is migrated in memory: legacy business management becomes a hiring goal and business ownership is normalized. IDs, jobs, applications, quotations and service records are preserved. Legacy stored records are not deleted or rewritten until a user explicitly saves an action.
 
@@ -73,7 +73,7 @@ Add server-enforced authentication, ownership, RBAC and audit logging before acc
 
 ### Guided Help (demo)
 
-`assistant.ts` defines `AssistantService`, typed requests/responses, local FAQ matching and page hints. `help.tsx` provides the global keyboard-accessible dialog, suggested questions and text input. It makes no remote calls and saves no conversation to localStorage. Live human support is not connected.
+`assistant.ts` defines `AssistantService`, typed requests/responses, local FAQ matching and page hints. `help.tsx` provides the global keyboard-accessible dialog, suggested questions and text input. It makes no remote calls and saves no conversation to localStorage. For unfamiliar questions the frontend can use an already-available browser LanguageModel to select an approved FAQ answer. Without a compatible model it uses the written guide. Step-specific help is available throughout registration. Live human support is not connected.
 
 A future AI adapter must call an authenticated, rate-limited server proxy; never expose credentials in the browser. Ground answers in approved help content, cite sources, reject verification and eligibility decisions, minimize personal data, use uncertainty/fallbacks to mitigate hallucinations, and offer explicit human handoff when a real support channel exists. AI cannot create verified badges or authorize workspace access.
 
