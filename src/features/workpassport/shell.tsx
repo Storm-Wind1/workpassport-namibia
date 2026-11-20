@@ -7,7 +7,7 @@ import { useDemo } from "./context";
 import { dashboardSections } from "./service";
 export function Header() {
   const [open, setOpen] = useState(false);
-  const { state, update } = useDemo();
+  const { state, update, ready } = useDemo();
   const a = state.account;
   const sections = dashboardSections(a?.activities ?? []);
   return (
@@ -72,6 +72,7 @@ export function Header() {
               variant="ghost"
               size="icon"
               className="mobile-menu"
+              disabled={!ready}
               aria-label="Toggle menu"
               aria-expanded={open}
               onClick={() => setOpen(!open)}
